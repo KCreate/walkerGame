@@ -27,9 +27,9 @@ function protoContext() {
 /*
     Canvas rendering code
 */
-var texture = undefined;
-var validPlayers = [];
 function GCRender(data, comparative) {
+    var texture = undefined;
+    var validPlayers = [];
 
     // Iterate over the map
     for (var x=0;x<data.map.width;x++) {
@@ -72,7 +72,7 @@ function GCRender(data, comparative) {
             if (validPlayersY.length > 0) {
                 texture = "player" + validPlayersY.last().id;
             } else {
-                texture = data.map.raster[y][x];
+                texture = data.map.raster[y][x].block.texture_name;
             }
 
             // Pass the data to the drawTexture function
@@ -83,7 +83,7 @@ function GCRender(data, comparative) {
                 }
 
                 drawHandler.drawTexture(
-                    texture,
+                    data.map.raster[y][x].block.texture_id,
                     x,
                     y
                 );
@@ -147,20 +147,6 @@ var protoDrawHandler = function() {
             });
 
             return false;
-        }
-
-        var textureInfo;
-
-        // Texture names
-        if (typeof id == 'string') {
-            textureInfo = textures[id];
-            id = textureInfo.texture_id;
-        }
-
-        // Default textures
-        if (id == -1 || id == undefined) {
-            textureInfo = textures['dirt'];
-            id = textures['dirt'].texture_id;
         }
 
         var CORD = GCRaiseCoord(

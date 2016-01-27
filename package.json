@@ -1,6 +1,6 @@
 {
-  "name": "walker",
-  "version": "0.4.0",
+  "name": "walkerGame",
+  "version": "0.1.0",
   "description": "Small RPG and Chat",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/KCreate/walker/walker.git"
+    "url": "https://github.com/KCreate/walkerGame/walkerGame.git"
   },
   "author": "Leonard Schuetz",
   "license": "MIT",
