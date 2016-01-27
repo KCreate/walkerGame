@@ -1,0 +1,200 @@
+textures = {
+    "player0": {
+        "texture_id": 0
+,
+"placeable": false    },
+    "player1": {
+        "texture_id": 1
+,
+"placeable": false    },
+    "player2": {
+        "texture_id": 2
+,
+"placeable": false    },
+    "player3": {
+        "texture_id": 3
+,
+"placeable": false    },
+    "player4": {
+        "texture_id": 4
+,
+"placeable": false    },
+    "player5": {
+        "texture_id": 5
+,
+"placeable": false    },
+    "player6": {
+        "texture_id": 6
+,
+"placeable": false    },
+    "player7": {
+        "texture_id": 7
+,
+"placeable": false    },
+    "player8": {
+        "texture_id": 8
+,
+"placeable": false    },
+    "player9": {
+        "texture_id": 9
+,
+"placeable": false    },
+    "player10": {
+        "texture_id": 10,
+        "placeable": false
+    },
+    "player11": {
+        "texture_id": 11,
+        "placeable": false
+    },
+    "player12": {
+        "texture_id": 12,
+        "placeable": false
+    },
+    "player13": {
+        "texture_id": 13,
+        "placeable": false
+    },
+    "player14": {
+        "texture_id": 14,
+        "placeable": false
+    },
+    "player15": {
+        "texture_id": 15,
+        "placeable": false
+    },
+    "player16": {
+        "texture_id": 16,
+        "placeable": false
+    },
+    "player17": {
+        "texture_id": 17,
+        "placeable": false
+    },
+    "player18": {
+        "texture_id": 18,
+        "placeable": false
+    },
+    "player19": {
+        "texture_id": 19,
+        "placeable": false
+    },
+    "player20": {
+        "texture_id": 20,
+        "placeable": false
+    },
+    "player21": {
+        "texture_id": 21,
+        "placeable": false
+    },
+    "player22": {
+        "texture_id": 22,
+        "placeable": false
+    },
+    "player23": {
+        "texture_id": 23,
+        "placeable": false
+    },
+    "player24": {
+        "texture_id": 24,
+        "placeable": false
+    },
+    "player25": {
+        "texture_id": 25,
+        "placeable": false
+    },
+    "player26": {
+        "texture_id": 26,
+        "placeable": false
+    },
+    "player27": {
+        "texture_id": 27,
+        "placeable": false
+    },
+    "player28": {
+        "texture_id": 28,
+        "placeable": false
+    },
+    "player29": {
+        "texture_id": 29,
+        "placeable": false
+    },
+    "player30": {
+        "texture_id": 30,
+        "placeable": false
+    },
+    "player31": {
+        "texture_id": 31,
+        "placeable": false
+    },
+    "player32": {
+        "texture_id": 32,
+        "placeable": false
+    },
+    "player33": {
+        "texture_id": 33,
+        "placeable": false
+    },
+    "player34": {
+        "texture_id": 34,
+        "placeable": false
+    },
+    "player35": {
+        "texture_id": 35,
+        "placeable": false
+    },
+    "dirt": {
+        "texture_id": 36,
+        "texture_ff_name": "Dirt",
+        "traversable": true,
+        "stable": true
+    },
+    "stone": {
+        "texture_id": 37,
+        "texture_ff_name": "Stone",
+        "stable": true
+    },
+    "cobblestone": {
+        "texture_id": 38,
+        "texture_ff_name": "Cobblestone",
+        "stable": false
+    },
+    "tnt": {
+        "texture_id": 39,
+        "texture_ff_name": "TNT",
+        "pushable": true
+    },
+    "wood": {
+        "texture_id": 40,
+        "texture_ff_name": "Wood",
+        "pushable": true
+    },
+    "bookshelf": {
+        "texture_id": 41,
+        "texture_ff_name": "Bookshelf",
+        "pushable": true
+    },
+    "brick": {
+        "texture_id": 42,
+        "texture_ff_name": "Brick",
+        "stable": true
+    },
+    "ironblock": {
+        "texture_id": 43,
+        "texture_ff_name": "Iron Block",
+        "traversable": true,
+        "stable": true
+    },
+    "goldblock": {
+        "texture_id": 44,
+        "texture_ff_name": "Gold Block",
+        "traversable": true,
+        "stable": true
+    },
+    "diamondblock": {
+        "texture_id": 45,
+        "texture_ff_name": "Diamond Block",
+        "traversable": true,
+        "stable": true
+    }
+}

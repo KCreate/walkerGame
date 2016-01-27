@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>WalkerGame</title>
+        <link rel="stylesheet" href="./res/css/master.css">
+    </head>
+    <body>
+        <aside id="left-sidebar">
+            <canvas id="canvas"></canvas>
+            <div class="controlbuttons" style="display: none">
+                <input type="button" value="Up" name="controlbuttons" id="up">
+                <input type="button" value="Left" name="controlbuttons" id="left">
+                <input type="button" value="Right" name="controlbuttons" id="right">
+                <input type="button" value="Down" name="controlbuttons" id="down">
+            </div>
+            <div class="playerlist">
+                <div>
+                    <div class="playerinfo">
+                        <p>
+                            Max mustermann
+                        </p>
+                        <p>
+                            If you see this, something is broken
+                        </p>
+                    </div>
+                    <div class="playerstatus">
+                        <canvas id="player0" width="50" height="50"></canvas>
+                        <span>100</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        <aside id="middle-sidebar">
+            <div id="chat">
+
+            </div>
+            <input type="text" name="chat" placeholder="Your message">
+            <div id="inventoryView">
+                <canvas width="50" height="50"></canvas>
+                <canvas width="50" height="50"></canvas>
+                <canvas width="50" height="50"></canvas>
+                <canvas width="50" height="50"></canvas>
+            </div>
+        </aside>
+        <script src="./app.js" charset="utf-8"></script>
+    </body>
+</html>

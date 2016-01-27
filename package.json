@@ -1,0 +1,29 @@
+{
+  "name": "walker",
+  "version": "0.4.0",
+  "description": "Small RPG and Chat",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server/index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KCreate/walker/walker.git"
+  },
+  "author": "Leonard Schuetz",
+  "license": "MIT",
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-autoprefixer": "^3.1.0",
+    "gulp-concat": "^2.6.0",
+    "gulp-minify-css": "^1.2.3",
+    "gulp-sass": "^2.1.1",
+    "gulp-uglify": "^1.5.1"
+  },
+  "dependencies": {
+    "cors": "^2.7.1",
+    "express": "^4.13.3",
+    "nodejs-websocket": "^1.5.0",
+    "prompt": "^0.2.14"
+  }
+}

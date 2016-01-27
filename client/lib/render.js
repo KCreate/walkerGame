@@ -1,0 +1,211 @@
+function protoContext() {
+    this.canvas = undefined;
+    this.context = undefined;
+
+    // default canvas width
+    var defaultWidth = 430;
+    var defaultHeight = 430;
+
+    this.create = function(id, width, height) {
+        if (typeof id != 'string') {
+            this.canvas = id;
+        } else {
+            this.canvas = document.getElementById(id);
+        }
+        this.canvas.width = (width || defaultWidth);
+        this.canvas.height = (height || defaultHeight);
+
+        this.context = this.canvas.getContext('2d');
+        this.context.mozImageSmoothingEnabled = false;
+        this.context.webkitImageSmoothingEnabled = false;
+        this.context.msImageSmoothingEnabled = false;
+        this.context.imageSmoothingEnabled = false;
+        return this.context;
+    }
+}
+
+/*
+    Canvas rendering code
+*/
+var texture = undefined;
+var validPlayers = [];
+function GCRender(data, comparative) {
+
+    // Iterate over the map
+    for (var x=0;x<data.map.width;x++) {
+
+        if (data.changedRC) {
+            if (!(data.changedRC.xChanged.indexOf(x) != -1) || !comparative) {
+                continue;
+            }
+        }
+
+        validPlayers = data.players.filter(function(player) {
+            if (player) {
+                if (player.x == x) {
+                    return player;
+                }
+            }
+        });
+
+        for (var y=0;y<data.map.height;y++) {
+
+            if (data.changedRC) {
+                if (!(data.changedRC.yChanged.indexOf(y) != -1) || !comparative) {
+                    continue;
+                }
+            }
+
+            // Check if a player is at this position
+            var validPlayersY = validPlayers.filter(function(player) {
+                if (player) {
+                    if (player.y == y) {
+                        return player;
+                    }
+                }
+            });
+
+            /*
+                If there are any players, draw their texture
+                If not, check the map what the ground texture should be
+            */
+            if (validPlayersY.length > 0) {
+                texture = "player" + validPlayersY.last().id;
+            } else {
+                texture = data.map.raster[y][x];
+            }
+
+            // Pass the data to the drawTexture function
+            if (texture) {
+                // Pass the mapData if it hasn't been passed before
+                if (!drawHandler.mapData) {
+                    drawHandler.setMapData(data.map);
+                }
+
+                drawHandler.drawTexture(
+                    texture,
+                    x,
+                    y
+                );
+            }
+
+            texture = undefined;
+        }
+    }
+}
+
+/*
+    Texture management
+*/
+
+var protoDrawHandler = function() {
+    this.spritesheet = undefined;
+    this.Context = undefined;
+    this.load = function(spritesheet_name, Context, mapData) {
+        this.spritesheet = new Image();
+        this.spritesheet.onload = function() {
+            if (this.drawingQueue.length > 0) {
+                this.drawingQueue.forEach(function(item, index) {
+                    this.drawTexture(
+                        item.id,
+                        item.dx,
+                        item.dy,
+                        item.callback
+                    );
+                }.bind(this));
+                this.drawingQueue = [];
+            }
+        }.bind(this)
+        this.spritesheet.src = spritesheet_name;
+        this.Context = Context;
+
+        if (mapData) {
+            this.setMapData(mapData);
+        }
+    }
+
+    this.drawingQueue = [];
+    this.mapData = undefined;
+    this.setMapData = function(mapData) {
+        this.mapData = {
+            pTileWidth: this.Context.canvas.width / mapData.width,
+            pTileHeight: this.Context.canvas.height / mapData.height,
+            tileDimension: mapData.tileDimension
+        }
+    }
+
+    this.drawTexture = function(id, dx, dy, callback) {
+        if (
+            this.spritesheet.naturalWidth === 0 ||
+            this.spritesheet.naturalHeight === 0) {
+
+            this.drawingQueue.push({
+                id: id,
+                dx: dx,
+                dy: dy,
+                callback: callback
+            });
+
+            return false;
+        }
+
+        var textureInfo;
+
+        // Texture names
+        if (typeof id == 'string') {
+            textureInfo = textures[id];
+            id = textureInfo.texture_id;
+        }
+
+        // Default textures
+        if (id == -1 || id == undefined) {
+            textureInfo = textures['dirt'];
+            id = textures['dirt'].texture_id;
+        }
+
+        var CORD = GCRaiseCoord(
+            id,
+            (this.spritesheet.width / this.mapData.tileDimension)
+        );
+
+        // Draw to the canvas
+        this.Context.context.drawImage(
+            this.spritesheet,
+            CORD.x * this.mapData.tileDimension,
+            CORD.y * this.mapData.tileDimension,
+            this.mapData.tileDimension,
+            this.mapData.tileDimension,
+            dx*this.mapData.pTileWidth,
+            dy*this.mapData.pTileHeight,
+            this.mapData.pTileWidth,
+            this.mapData.pTileHeight
+        );
+
+        if (callback) {
+            callback(this.Context.context);
+        }
+    }
+
+    this.fillText = function(string, x, y, options) {
+        options.map(function(value, key) {
+            this.Context.context[key] = value;
+        }.bind(this));
+
+        this.Context.context.fillText(string, x, y);
+    }
+
+    this.strokeText = function(string, x, y, options) {
+        options.map(function(value, key) {
+            this.Context.context[key] = value;
+        }.bind(this));
+
+        this.Context.context.strokeText(string, x, y);
+    }
+}
+
+// Initialize context and the drawHandler
+Context = new protoContext();
+Context.create('canvas');
+
+drawHandler = new protoDrawHandler();
+drawHandler.load('./res/img/spritesheet.png', Context);
