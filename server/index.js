@@ -77,21 +77,23 @@ var GameSocket = WebSocket.createServer(function (conn) {
             return false;
         }
 
-        // Delegate the data to the right controller
-        if (data.type === 'action') {
+        switch (data.type) {
+            case 'action':
+                // Notify the game of the action
+                Game.action(
+                    data.actionName,
+                    conn.key
+                );
+                break;
+            case 'chat':
+                // Notify the chat of the new message
+                Chat.write(
+                    data.message,
+                    Game.playerForKey(conn.key)
+                );
+                break;
+            default:
 
-            // Notify the game of the action
-            Game.action(
-                data.actionName,
-                data.key
-            );
-        } else if (data.type === 'chat') {
-
-            // Notify the chat of the new message
-            Chat.write(
-                data.message,
-                Game.playerForKey(conn.key)
-            );
         }
 	});
 
@@ -146,7 +148,7 @@ CommandsController.setup(Game, Chat, GameSocket);
 CommandsController.startRegistering();
 
 /*
-    Securely close the websocket connection
+    Securely close the websocket connection without crashing
 */
 function secureClose(conn) {
     if (conn.readyState.OPEN || conn.readyState.CLOSING) {

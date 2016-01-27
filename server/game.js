@@ -16,7 +16,8 @@ module.exports = function() {
             control == 'left' ||
             control == 'right' ||
             control == 'place_block' ||
-            control == 'select_block')
+            control == 'select_block' ||
+            control == 'interact')
         ) {
             return false;
         }
@@ -104,14 +105,31 @@ module.exports = function() {
                             player.inventory[player.selectedBlock].block.texture_name) {
                             // This assumes the field is the one currently selected
 
+                            // Call the onremove handler
+                            this.map.raster
+                                [player.y + bDIF.y]
+                                [player.x + bDIF.x].block.onremove({
+                                    x: player.x + bDIF.x,
+                                    y: player.y + bDIF.y,
+                                    game: this,
+                                    player: player,
+                                    type: 'remove'
+                                });
+
+                            // Place the block
                             this.map.raster
                                 [player.y + bDIF.y]
                                 [player.x + bDIF.x].block = blockList.getBlock('dirt');
 
                             player.changeResource({
-                                block: blockList.getBlock('dirt'),
+                                block: blockList.getBlock(
+                                    player.inventory[player.selectedBlock].block.texture_name
+                                ),
                                 amount: 1
                             });
+
+                            changedRC.xChanged.push(player.x + bDIF.x);
+                            changedRC.yChanged.push(player.y + bDIF.y);
 
                         } else if (this.map.raster[player.y + bDIF.y][player.x + bDIF.x].block.texture_name !== 'dirt') {
                             /*
@@ -119,39 +137,77 @@ module.exports = function() {
                                 but also not the currently selected one
                             */
 
+                            // Call the onremove handler
+                            this.map.raster
+                                [player.y + bDIF.y]
+                                [player.x + bDIF.x].block.onremove({
+                                    x: player.x + bDIF.x,
+                                    y: player.y + bDIF.y,
+                                    game: this,
+                                    player: player,
+                                    type: 'remove'
+                                });
+
                             // Collect the block and place it in the inventory of the player
                             player.changeResource({
-                                block: blockList.getBlock(this.map.raster[player.y + bDIF.y][player.x + bDIF.x].block.texture_name),
+                                block: blockList.getBlock(
+                                    this.map.raster[player.y + bDIF.y][player.x + bDIF.x].block.texture_name
+                                ),
                                 amount: 1
                             });
 
                             // Overwrite the field with dirt
                             this.map.raster[player.y + bDIF.y][player.x + bDIF.x].block = blockList.getBlock('dirt');
+
+                            changedRC.xChanged.push(player.x + bDIF.x);
+                            changedRC.yChanged.push(player.y + bDIF.y);
                         } else {
                             // This assumes the field in question is a dirt block
 
                             // Check if the player has enough of the required resource
                             if (player.inventory[player.selectedBlock].amount > 0) {
+
+                                // Place the currently selected block
                                 this.map.raster
                                 [player.y + bDIF.y]
-                                [player.x + bDIF.x].block.texture_name = player.inventory[player.selectedBlock].block.texture_name;
+                                [player.x + bDIF.x].block = blockList.getBlock(
+                                    player.inventory[player.selectedBlock].block.texture_name
+                                );
 
+                                // Remove one of the currently selected blocks
                                 player.changeResource({
-                                    block: player.inventory[player.selectedBlock].block.texture_name,
+                                    block: blockList.getBlock(
+                                        player.inventory[player.selectedBlock].block.texture_name
+                                    ),
                                     amount: -1
                                 });
+
+                                // Call the onplace handler
+                                this.map.raster
+                                    [player.y + bDIF.y]
+                                    [player.x + bDIF.x].block.onplace({
+                                        x: player.x + bDIF.x,
+                                        y: player.y + bDIF.y,
+                                        game: this,
+                                        player: player,
+                                        type: 'place'
+                                    });
+
+                                changedRC.xChanged.push(player.x + bDIF.x);
+                                changedRC.yChanged.push(player.y + bDIF.y);
                             }
                         }
-
-                        changedRC.xChanged.push(player.x + bDIF.x);
-                        changedRC.yChanged.push(player.y + bDIF.y);
                     }
                 }
 
                 break;
             case 'select_block':
-
                 player.selectBlock(modifier);
+
+                break;
+            case 'interact':
+
+                console.log('Trying to interact');
 
                 break;
             default:
@@ -194,14 +250,6 @@ module.exports = function() {
                                     player.x + bDIF.x
                                 ].block.texture_name
                             ).pushable) {
-
-                                (blockList.getBlock(
-                                    this.map.raster[
-                                        player.y + bDIF.y
-                                    ][
-                                        player.x + bDIF.x
-                                    ].block.texture_name
-                                ).pushable)
 
                                 // Check if radius 2 is not out of map
                                 if (this.map.raster[player.y + (bDIF.y * 2)]) {
@@ -261,14 +309,6 @@ module.exports = function() {
                                     player.x + (bDIF.x * 1)
                                 ].block.texture_name
                             ).traversable) {
-
-                                (blockList.getBlock(
-                                    this.map.raster[
-                                        player.y + (bDIF.y * 1)
-                                    ][
-                                        player.x + (bDIF.x * 1)
-                                    ].block.texture_name
-                                ).traversable)
                                 // Move the player in the desired direction
                                 if (!!(bDIF.y)) {
                                     player.y = player.y + (bDIF.y);

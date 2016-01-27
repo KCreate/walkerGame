@@ -27,7 +27,7 @@ function protoContext() {
 /*
     Canvas rendering code
 */
-function GCRender(data, comparative) {
+function GCRender(data) {
     var texture = undefined;
     var validPlayers = [];
 
@@ -35,7 +35,7 @@ function GCRender(data, comparative) {
     for (var x=0;x<data.map.width;x++) {
 
         if (data.changedRC) {
-            if (!(data.changedRC.xChanged.indexOf(x) != -1) || !comparative) {
+            if (!(data.changedRC.xChanged.indexOf(x) != -1)) {
                 continue;
             }
         }
@@ -51,7 +51,7 @@ function GCRender(data, comparative) {
         for (var y=0;y<data.map.height;y++) {
 
             if (data.changedRC) {
-                if (!(data.changedRC.yChanged.indexOf(y) != -1) || !comparative) {
+                if (!(data.changedRC.yChanged.indexOf(y) != -1)) {
                     continue;
                 }
             }
@@ -70,20 +70,20 @@ function GCRender(data, comparative) {
                 If not, check the map what the ground texture should be
             */
             if (validPlayersY.length > 0) {
-                texture = "player" + validPlayersY.last().id;
+                texture = validPlayersY.last().id;
             } else {
-                texture = data.map.raster[y][x].block.texture_name;
+                texture = data.map.raster[y][x].block.texture_id;
             }
 
             // Pass the data to the drawTexture function
-            if (texture) {
+            if (texture !== undefined) {
                 // Pass the mapData if it hasn't been passed before
                 if (!drawHandler.mapData) {
                     drawHandler.setMapData(data.map);
                 }
 
                 drawHandler.drawTexture(
-                    data.map.raster[y][x].block.texture_id,
+                    texture,
                     x,
                     y
                 );
@@ -149,6 +149,15 @@ var protoDrawHandler = function() {
             return false;
         }
 
+        if (id === undefined) {
+            id = 36;
+        }
+
+        if (typeof id === 'object') {
+            id = id.texture_id;
+        }
+
+        // Raise the coordinates
         var CORD = GCRaiseCoord(
             id,
             (this.spritesheet.width / this.mapData.tileDimension)
@@ -167,6 +176,7 @@ var protoDrawHandler = function() {
             this.mapData.pTileHeight
         );
 
+        // Notify the callback if it was passed
         if (callback) {
             callback(this.Context.context);
         }

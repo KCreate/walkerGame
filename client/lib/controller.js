@@ -75,11 +75,13 @@ var gameController = function(websocket) {
         if (event.game.key && !this.socketKey) {
             this.socketKey = event.game.key;
         }
-        
+
+        console.log(event);
+
         // Measure render performance
         var start = window.performance.now();
 
-        GCRender(event, this.localMap);
+        GCRender(event);
 
         // Evaluate render performance
         if (!window.times) {
@@ -219,7 +221,7 @@ var url = (function(){
     if (window.location.hash == '#dev') {
         return 'ws://localhost:4000';
     } else {
-        return 'ws://192.168.1.42:4000';
+        return 'ws://192.168.1.50:4000';
     }
 })();
 

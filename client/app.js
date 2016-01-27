@@ -1,44 +1,44 @@
 textures = {
     "player0": {
-        "texture_id": 0
-,
-"placeable": false    },
+        "texture_id": 0,
+        "placeable": false
+    },
     "player1": {
-        "texture_id": 1
-,
-"placeable": false    },
+        "texture_id": 1,
+        "placeable": false
+    },
     "player2": {
-        "texture_id": 2
-,
-"placeable": false    },
+        "texture_id": 2,
+        "placeable": false
+    },
     "player3": {
-        "texture_id": 3
-,
-"placeable": false    },
+        "texture_id": 3,
+        "placeable": false
+    },
     "player4": {
-        "texture_id": 4
-,
-"placeable": false    },
+        "texture_id": 4,
+        "placeable": false
+    },
     "player5": {
-        "texture_id": 5
-,
-"placeable": false    },
+        "texture_id": 5,
+        "placeable": false
+    },
     "player6": {
-        "texture_id": 6
-,
-"placeable": false    },
+        "texture_id": 6,
+        "placeable": false
+    },
     "player7": {
-        "texture_id": 7
-,
-"placeable": false    },
+        "texture_id": 7,
+        "placeable": false
+    },
     "player8": {
-        "texture_id": 8
-,
-"placeable": false    },
+        "texture_id": 8,
+        "placeable": false
+    },
     "player9": {
-        "texture_id": 9
-,
-"placeable": false    },
+        "texture_id": 9,
+        "placeable": false
+    },
     "player10": {
         "texture_id": 10,
         "placeable": false
@@ -269,7 +269,7 @@ function protoContext() {
 /*
     Canvas rendering code
 */
-function GCRender(data, comparative) {
+function GCRender(data) {
     var texture = undefined;
     var validPlayers = [];
 
@@ -277,7 +277,7 @@ function GCRender(data, comparative) {
     for (var x=0;x<data.map.width;x++) {
 
         if (data.changedRC) {
-            if (!(data.changedRC.xChanged.indexOf(x) != -1) || !comparative) {
+            if (!(data.changedRC.xChanged.indexOf(x) != -1)) {
                 continue;
             }
         }
@@ -293,7 +293,7 @@ function GCRender(data, comparative) {
         for (var y=0;y<data.map.height;y++) {
 
             if (data.changedRC) {
-                if (!(data.changedRC.yChanged.indexOf(y) != -1) || !comparative) {
+                if (!(data.changedRC.yChanged.indexOf(y) != -1)) {
                     continue;
                 }
             }
@@ -312,20 +312,20 @@ function GCRender(data, comparative) {
                 If not, check the map what the ground texture should be
             */
             if (validPlayersY.length > 0) {
-                texture = "player" + validPlayersY.last().id;
+                texture = validPlayersY.last().id;
             } else {
-                texture = data.map.raster[y][x].block.texture_name;
+                texture = data.map.raster[y][x].block.texture_id;
             }
 
             // Pass the data to the drawTexture function
-            if (texture) {
+            if (texture !== undefined) {
                 // Pass the mapData if it hasn't been passed before
                 if (!drawHandler.mapData) {
                     drawHandler.setMapData(data.map);
                 }
 
                 drawHandler.drawTexture(
-                    data.map.raster[y][x].block.texture_id,
+                    texture,
                     x,
                     y
                 );
@@ -391,6 +391,15 @@ var protoDrawHandler = function() {
             return false;
         }
 
+        if (id === undefined) {
+            id = 36;
+        }
+
+        if (typeof id === 'object') {
+            id = id.texture_id;
+        }
+
+        // Raise the coordinates
         var CORD = GCRaiseCoord(
             id,
             (this.spritesheet.width / this.mapData.tileDimension)
@@ -409,6 +418,7 @@ var protoDrawHandler = function() {
             this.mapData.pTileHeight
         );
 
+        // Notify the callback if it was passed
         if (callback) {
             callback(this.Context.context);
         }
@@ -531,8 +541,8 @@ function renderInventoryBlockView(data, inventoryInfo) {
     var canvas = document.createElement('canvas');
         canvas.width = 50;
         canvas.height = 50;
-        canvas.id = "inventoryView-" + data.block_name;
-        canvas.title = data.block_name;
+        canvas.id = "inventoryView-" + data.block.texture_name;
+        canvas.title = data.block.texture_ff_name;
 
         // Set the selected class if the current block is selected
         if (inventoryInfo.index == inventoryInfo.selected) {
@@ -542,19 +552,19 @@ function renderInventoryBlockView(data, inventoryInfo) {
     // Add the onclick event handler
 
     var inventoryViewContext = new protoContext();
-    inventoryViewContext.create(canvas, 50, 50);
+        inventoryViewContext.create(canvas, 50, 50);
 
     var inventoryViewDrawHandler = new protoDrawHandler();
-    inventoryViewDrawHandler.load(
-        './res/img/spritesheet.png',
-        inventoryViewContext, {
-            width: 1,
-            height: 1,
-            tileDimension: 16
+        inventoryViewDrawHandler.load(
+            './res/img/spritesheet.png',
+            inventoryViewContext, {
+                width: 1,
+                height: 1,
+                tileDimension: 16
         });
 
     // Draw the texture
-    inventoryViewDrawHandler.drawTexture(data.block_name, 0, 0, function() {
+    inventoryViewDrawHandler.drawTexture(data.block.texture_id, 0, 0, function() {
         var fillColor = (data.amount <= 3 ? 'rgba(231, 76, 60, 0.95)': 'rgba(255, 255, 255, 0.95)')
 
         // Draw the text over once the texture has finished
@@ -653,11 +663,13 @@ var gameController = function(websocket) {
         if (event.game.key && !this.socketKey) {
             this.socketKey = event.game.key;
         }
-        
+
+        console.log(event);
+
         // Measure render performance
         var start = window.performance.now();
 
-        GCRender(event, this.localMap);
+        GCRender(event);
 
         // Evaluate render performance
         if (!window.times) {
@@ -797,7 +809,7 @@ var url = (function(){
     if (window.location.hash == '#dev') {
         return 'ws://localhost:4000';
     } else {
-        return 'ws://192.168.1.42:4000';
+        return 'ws://192.168.1.50:4000';
     }
 })();
 

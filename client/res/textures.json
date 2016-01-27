@@ -1,44 +1,44 @@
 textures = {
     "player0": {
-        "texture_id": 0
-,
-"placeable": false    },
+        "texture_id": 0,
+        "placeable": false
+    },
     "player1": {
-        "texture_id": 1
-,
-"placeable": false    },
+        "texture_id": 1,
+        "placeable": false
+    },
     "player2": {
-        "texture_id": 2
-,
-"placeable": false    },
+        "texture_id": 2,
+        "placeable": false
+    },
     "player3": {
-        "texture_id": 3
-,
-"placeable": false    },
+        "texture_id": 3,
+        "placeable": false
+    },
     "player4": {
-        "texture_id": 4
-,
-"placeable": false    },
+        "texture_id": 4,
+        "placeable": false
+    },
     "player5": {
-        "texture_id": 5
-,
-"placeable": false    },
+        "texture_id": 5,
+        "placeable": false
+    },
     "player6": {
-        "texture_id": 6
-,
-"placeable": false    },
+        "texture_id": 6,
+        "placeable": false
+    },
     "player7": {
-        "texture_id": 7
-,
-"placeable": false    },
+        "texture_id": 7,
+        "placeable": false
+    },
     "player8": {
-        "texture_id": 8
-,
-"placeable": false    },
+        "texture_id": 8,
+        "placeable": false
+    },
     "player9": {
-        "texture_id": 9
-,
-"placeable": false    },
+        "texture_id": 9,
+        "placeable": false
+    },
     "player10": {
         "texture_id": 10,
         "placeable": false

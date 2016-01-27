@@ -91,8 +91,8 @@ function renderInventoryBlockView(data, inventoryInfo) {
     var canvas = document.createElement('canvas');
         canvas.width = 50;
         canvas.height = 50;
-        canvas.id = "inventoryView-" + data.block_name;
-        canvas.title = data.block_name;
+        canvas.id = "inventoryView-" + data.block.texture_name;
+        canvas.title = data.block.texture_ff_name;
 
         // Set the selected class if the current block is selected
         if (inventoryInfo.index == inventoryInfo.selected) {
@@ -102,19 +102,19 @@ function renderInventoryBlockView(data, inventoryInfo) {
     // Add the onclick event handler
 
     var inventoryViewContext = new protoContext();
-    inventoryViewContext.create(canvas, 50, 50);
+        inventoryViewContext.create(canvas, 50, 50);
 
     var inventoryViewDrawHandler = new protoDrawHandler();
-    inventoryViewDrawHandler.load(
-        './res/img/spritesheet.png',
-        inventoryViewContext, {
-            width: 1,
-            height: 1,
-            tileDimension: 16
+        inventoryViewDrawHandler.load(
+            './res/img/spritesheet.png',
+            inventoryViewContext, {
+                width: 1,
+                height: 1,
+                tileDimension: 16
         });
 
     // Draw the texture
-    inventoryViewDrawHandler.drawTexture(data.block_name, 0, 0, function() {
+    inventoryViewDrawHandler.drawTexture(data.block.texture_id, 0, 0, function() {
         var fillColor = (data.amount <= 3 ? 'rgba(231, 76, 60, 0.95)': 'rgba(255, 255, 255, 0.95)')
 
         // Draw the text over once the texture has finished
