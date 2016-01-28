@@ -225,9 +225,9 @@ var inventoryViewController = function(websocket) {
 */
 var url = (function(){
     if (window.location.hash == '#dev') {
-        return 'ws://localhost:66274';
+        return 'ws://localhost:6628';
     } else {
-        return 'ws://192.168.1.42:6628';
+        return 'ws://192.168.1.50:6628';
     }
 })();
 

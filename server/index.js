@@ -48,7 +48,10 @@ Chat.on('playerInfoChanged', function() {
     Game Controller
 */
 app.use(express.static('./client'));
-app.listen(ControlPort);
+app.listen(ControlPort, function() {
+    console.log('Control server ready at port ' + ControlPort);
+});
+
 
 var GameSocket = WebSocket.createServer(function (conn) {
 
@@ -138,8 +141,6 @@ Game.render = function(game, changedRC) {
 
 // Notify sockets that something changed reagarding players
 Game.playersChanged = function(players) {
-    console.log(players);
-
     // Kick and close all connections of dead players
     players.forEach(function(player) {
         if (player) {
@@ -166,7 +167,6 @@ CommandsController.startRegistering();
     Securely close the websocket connection without crashing
 */
 function secureClose(conn) {
-    console.log(connreadyState);
     if (conn.readyState === 1 || conn.readyState === 2) {
         try { conn.close(); } catch (e) { console.log(e); }
     }

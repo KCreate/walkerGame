@@ -105,38 +105,50 @@ module.exports = function() {
                             player.inventory[player.selectedBlock].block.texture_name) {
                             // This assumes the field is the one currently selected
 
-                            // Call the onremove handler
-                            this.map.raster
+                            // Check if the block is only breakable by an admin
+                            var allowsBreaking = true;
+                            if (this.map.raster
                                 [player.y + bDIF.y]
-                                [player.x + bDIF.x].block.onremove({
-                                    x: player.x + bDIF.x,
-                                    y: player.y + bDIF.y,
-                                    game: this,
-                                    player: player,
-                                    type: 'remove'
-                                });
-
-                            // Place the block
-                            this.map.raster
-                                [player.y + bDIF.y]
-                                [player.x + bDIF.x].block = blockList.getBlock('dirt');
-
-                            // If the block drops, give it to the player
-                            if (blockList.getBlock(
-                                player.inventory[player.selectedBlock].block.texture_name
-                            ).drops) {
-
-
-                                player.changeResource({
-                                    block: blockList.getBlock(
-                                        player.inventory[player.selectedBlock].block.texture_name
-                                    ),
-                                    amount: 1
-                                });
+                                [player.x + bDIF.x].block.onlyadminbreakable) {
+                                if (!player.admin) {
+                                    allowsBreaking = false;
+                                }
                             }
 
-                            changedRC.xChanged.push(player.x + bDIF.x);
-                            changedRC.yChanged.push(player.y + bDIF.y);
+                            if (allowsBreaking) {
+                                // Call the onremove handler
+                                this.map.raster
+                                    [player.y + bDIF.y]
+                                    [player.x + bDIF.x].block.onremove({
+                                        x: player.x + bDIF.x,
+                                        y: player.y + bDIF.y,
+                                        game: this,
+                                        player: player,
+                                        type: 'remove'
+                                    });
+
+                                // Place the block
+                                this.map.raster
+                                    [player.y + bDIF.y]
+                                    [player.x + bDIF.x].block = blockList.getBlock('dirt');
+
+                                // If the block drops, give it to the player
+                                if (blockList.getBlock(
+                                    player.inventory[player.selectedBlock].block.texture_name
+                                ).drops) {
+
+
+                                    player.changeResource({
+                                        block: blockList.getBlock(
+                                            player.inventory[player.selectedBlock].block.texture_name
+                                        ),
+                                        amount: 1
+                                    });
+                                }
+
+                                changedRC.xChanged.push(player.x + bDIF.x);
+                                changedRC.yChanged.push(player.y + bDIF.y);
+                            }
 
                         } else if (this.map.raster[player.y + bDIF.y][player.x + bDIF.x].block.texture_name !== 'dirt') {
                             /*
@@ -144,36 +156,49 @@ module.exports = function() {
                                 but also not the currently selected one
                             */
 
-                            // Call the onremove handler
-                            this.map.raster
+                            // Check if the block is only breakable by an admin
+                            var allowsBreaking = true;
+                            if (this.map.raster
                                 [player.y + bDIF.y]
-                                [player.x + bDIF.x].block.onremove({
-                                    x: player.x + bDIF.x,
-                                    y: player.y + bDIF.y,
-                                    game: this,
-                                    player: player,
-                                    type: 'remove'
-                                });
-
-                            // If the block drops, give it to the player
-                            if (blockList.getBlock(
-                                this.map.raster[player.y + bDIF.y][player.x + bDIF.x].block.texture_name
-                            ).drops) {
-
-                                // Collect the block and place it in the inventory of the player
-                                player.changeResource({
-                                    block: blockList.getBlock(
-                                        this.map.raster[player.y + bDIF.y][player.x + bDIF.x].block.texture_name
-                                    ),
-                                    amount: 1
-                                });
+                                [player.x + bDIF.x].block.onlyadminbreakable) {
+                                if (!player.admin) {
+                                    allowsBreaking = false;
+                                }
                             }
 
-                            // Overwrite the field with dirt
-                            this.map.raster[player.y + bDIF.y][player.x + bDIF.x].block = blockList.getBlock('dirt');
+                            if (allowsBreaking) {
+                                // Call the onremove handler
+                                this.map.raster
+                                    [player.y + bDIF.y]
+                                    [player.x + bDIF.x].block.onremove({
+                                        x: player.x + bDIF.x,
+                                        y: player.y + bDIF.y,
+                                        game: this,
+                                        player: player,
+                                        type: 'remove'
+                                    });
 
-                            changedRC.xChanged.push(player.x + bDIF.x);
-                            changedRC.yChanged.push(player.y + bDIF.y);
+                                // If the block drops, give it to the player
+                                if (blockList.getBlock(
+                                    this.map.raster[player.y + bDIF.y][player.x + bDIF.x].block.texture_name
+                                ).drops) {
+
+                                    // Collect the block and place it in the inventory of the player
+                                    player.changeResource({
+                                        block: blockList.getBlock(
+                                            this.map.raster[player.y + bDIF.y][player.x + bDIF.x].block.texture_name
+                                        ),
+                                        amount: 1
+                                    });
+                                }
+
+                                // Overwrite the field with dirt
+                                this.map.raster[player.y + bDIF.y][player.x + bDIF.x].block = blockList.getBlock('dirt');
+
+                                changedRC.xChanged.push(player.x + bDIF.x);
+                                changedRC.yChanged.push(player.y + bDIF.y);
+                            }
+
                         } else {
                             // This assumes the field in question is a dirt block
 

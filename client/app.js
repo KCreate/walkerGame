@@ -31,185 +31,93 @@ textures = {
         "texture_id": 7,
         "placeable": false
     },
-    "player8": {
-        "texture_id": 8,
-        "placeable": false
-    },
-    "player9": {
-        "texture_id": 9,
-        "placeable": false
-    },
-    "player10": {
-        "texture_id": 10,
-        "placeable": false
-    },
-    "player11": {
-        "texture_id": 11,
-        "placeable": false
-    },
-    "player12": {
-        "texture_id": 12,
-        "placeable": false
-    },
-    "player13": {
-        "texture_id": 13,
-        "placeable": false
-    },
-    "player14": {
-        "texture_id": 14,
-        "placeable": false
-    },
-    "player15": {
-        "texture_id": 15,
-        "placeable": false
-    },
-    "player16": {
-        "texture_id": 16,
-        "placeable": false
-    },
-    "player17": {
-        "texture_id": 17,
-        "placeable": false
-    },
-    "player18": {
-        "texture_id": 18,
-        "placeable": false
-    },
-    "player19": {
-        "texture_id": 19,
-        "placeable": false
-    },
-    "player20": {
-        "texture_id": 20,
-        "placeable": false
-    },
-    "player21": {
-        "texture_id": 21,
-        "placeable": false
-    },
-    "player22": {
-        "texture_id": 22,
-        "placeable": false
-    },
-    "player23": {
-        "texture_id": 23,
-        "placeable": false
-    },
-    "player24": {
-        "texture_id": 24,
-        "placeable": false
-    },
-    "player25": {
-        "texture_id": 25,
-        "placeable": false
-    },
-    "player26": {
-        "texture_id": 26,
-        "placeable": false
-    },
-    "player27": {
-        "texture_id": 27,
-        "placeable": false
-    },
-    "player28": {
-        "texture_id": 28,
-        "placeable": false
-    },
-    "player29": {
-        "texture_id": 29,
-        "placeable": false
-    },
-    "player30": {
-        "texture_id": 30,
-        "placeable": false
-    },
-    "player31": {
-        "texture_id": 31,
-        "placeable": false
-    },
-    "player32": {
-        "texture_id": 32,
-        "placeable": false
-    },
-    "player33": {
-        "texture_id": 33,
-        "placeable": false
-    },
-    "player34": {
-        "texture_id": 34,
-        "placeable": false
-    },
-    "player35": {
-        "texture_id": 35,
-        "placeable": false
-    },
     "dirt": {
-        "texture_id": 36,
+        "texture_id": 8,
         "texture_ff_name": "Dirt",
         "traversable": true,
         "stable": true
     },
     "stone": {
-        "texture_id": 37,
+        "texture_id": 9,
         "texture_ff_name": "Stone",
         "stable": true
     },
     "cobblestone": {
-        "texture_id": 38,
+        "texture_id": 10,
         "texture_ff_name": "Cobblestone",
         "stable": false
     },
     "tnt": {
-        "texture_id": 39,
+        "texture_id": 11,
         "texture_ff_name": "TNT"
     },
     "wood": {
-        "texture_id": 40,
+        "texture_id": 12,
         "texture_ff_name": "Wood",
         "pushable": true
     },
     "bookshelf": {
-        "texture_id": 41,
+        "texture_id": 13,
         "texture_ff_name": "Bookshelf",
         "pushable": true
     },
     "brick": {
-        "texture_id": 42,
+        "texture_id": 14,
         "texture_ff_name": "Brick",
         "stable": true
     },
     "ironblock": {
-        "texture_id": 43,
+        "texture_id": 15,
         "texture_ff_name": "Iron Block",
         "traversable": true,
         "stable": true
     },
     "goldblock": {
-        "texture_id": 44,
+        "texture_id": 16,
         "texture_ff_name": "Gold Block",
         "traversable": true,
         "stable": true
     },
     "diamondblock": {
-        "texture_id": 45,
+        "texture_id": 17,
         "texture_ff_name": "Diamond Block",
         "traversable": true,
         "stable": true
     },
     "glass": {
-        "texture_id": 46,
+        "texture_id": 18,
         "texture_ff_name": "Glass Pane",
-        "traversable": false,
-        "stable": false,
         "drops":false
     },
-    "leonardschuetz": {
-        "texture_id": 47,
-        "texture_ff_name": "Leonard Schuetz",
-        "traversable": false,
+    "ironbar": {
+        "texture_id": 19,
+        "texture_ff_name": "Iron Bar",
+        "stable": true
+    },
+    "mossycobblestone": {
+        "texture_id": 20,
+        "texture_ff_name": "Mossy Cobblestone",
+        "stable": true
+    },
+    "sand": {
+        "texture_id": 21,
+        "texture_ff_name": "Sand",
+        "traversable":true
+    },
+    "gravel": {
+        "texture_id": 22,
+        "texture_ff_name": "Gravel",
+        "pushable": true
+    },
+    "woodlog": {
+        "texture_id": 23,
+        "texture_ff_name": "Wood Log"
+    },
+    "bedrock": {
+        "texture_id": 24,
+        "texture_ff_name": "Bedrock",
         "stable": true,
-        "drops": false,
-        "infinite": true
+        "onlyadminbreakable": true
     }
 }
 
@@ -827,9 +735,9 @@ var inventoryViewController = function(websocket) {
 */
 var url = (function(){
     if (window.location.hash == '#dev') {
-        return 'ws://localhost:66274';
+        return 'ws://localhost:6628';
     } else {
-        return 'ws://192.168.1.42:6628';
+        return 'ws://192.168.1.50:6628';
     }
 })();
 
