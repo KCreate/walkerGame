@@ -210,21 +210,5 @@ textures = {
         "stable": true,
         "drops": false,
         "infinite": true
-    },
-    "johannabaumgartner": {
-        "texture_id": 48,
-        "texture_ff_name": "Johanna Baumgartner",
-        "traversable": false,
-        "stable": true,
-        "drops": false,
-        "infinite": true
-    },
-    "kartoffelface": {
-        "texture_id": 49,
-        "texture_ff_name": "Kartoffel Face",
-        "traversable": false,
-        "stable": true,
-        "drops": false,
-        "infinite": true
     }
 }
