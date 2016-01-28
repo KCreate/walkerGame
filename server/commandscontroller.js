@@ -1,4 +1,5 @@
-var Sha1 = require('./classes/sha1.js'); // Used for password hashing
+var Sha1            = require('./classes/sha1.js'); // Used for password hashing
+var blockList       = new (require('./classes/blocklist.js'))()
 
 module.exports = function() {
 
@@ -106,7 +107,7 @@ module.exports = function() {
                 }];
             } else {
                 return [false, {
-                    message: this.template('misc_error', {
+                    message: this.templates('misc_error', {
                         command: data.command,
                         message: 'Player not found'
                     }, player)
@@ -273,10 +274,10 @@ module.exports = function() {
                 var block_name = argumentParts[0];
                 var amount = argumentParts[1];
 
-                if (this.game.textures[block_name]) {
+                if (blockList.getBlock(block_name)) {
                     // Add the resource to the player
                     player.changeResource({
-                        block_name,
+                        block: blockList.getBlock(block_name),
                         amount
                     });
 
@@ -286,6 +287,83 @@ module.exports = function() {
                             message: player.name() + ' was given ' + amount + ' of ' + block_name
                         }, player)
                     }];
+                } else {
+                    return [false, {
+                        message: this.templates('misc_error', {
+                            command: data.command,
+                            message: 'No block found with this name'
+                        }, player)
+                    }];
+                }
+            } else {
+                return [false, {
+                    message: this.templates('missing_permissions', {
+                        command: data.command
+                    }, player)
+                }];
+            }
+        }.bind(this));
+
+        /*
+            /giveplayer
+
+            Requires admin permissions
+        */
+        this.chat.commands.regCommand('giveplayer', function(data, player) {
+            // Error checking
+            if (data.err) {
+                console.log(data.err);
+                return [false, {
+                    message: this.templates('server_error', {
+                        command: data.command
+                    }, player)
+                }];
+            }
+
+            // Data validation
+            if (data.arguments === '') {
+                return [false, {
+                    message: this.templates('misc_error', {
+                        command: data.command,
+                        message: 'This command requires three arguments: blockname & amount & playerKey'
+                    }, player)
+                }];
+            }
+
+            // Main action
+            if (player.admin) {
+
+                // Extract the blockname and amount
+                var argumentParts = data.arguments.split(' ');
+                var block_name = argumentParts[0];
+                var amount = argumentParts[1];
+                var playerKey = argumentParts[2];
+
+                if (blockList.getBlock(block_name)) {
+
+                    // Check if the player exists
+                    if (this.game.playerForKey(playerKey)) {
+                        // Add the resource to the player
+                        this.game.playerForKey(playerKey).changeResource({
+                            block: blockList.getBlock(block_name),
+                            amount
+                        });
+
+                        return [true, {
+                            message: this.templates('success', {
+                                command: data.command,
+                                message: this.game.playerForKey(playerKey).name() + ' was given ' + amount + ' of ' + block_name
+                            }, player)
+                        }];
+                    } else {
+                        return [false, {
+                            message: this.templates('misc_error', {
+                                command: data.command,
+                                message: 'No player found with this key'
+                            }, player)
+                        }];
+                    }
+
                 } else {
                     return [false, {
                         message: this.templates('misc_error', {

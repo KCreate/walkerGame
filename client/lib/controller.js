@@ -120,7 +120,10 @@ var gameController = function(websocket) {
                 event.keyCode == 90 ||
                 event.keyCode == 71 ||
                 event.keyCode == 72 ||
-                event.keyCode == 74
+                event.keyCode == 74 ||
+
+                // E
+                event.keyCode == 69
             ) {
                 this.action(({
                     // WASD
@@ -133,7 +136,10 @@ var gameController = function(websocket) {
                     90: 'place_block:up',
                     71: 'place_block:left',
                     72: 'place_block:down',
-                    74: 'place_block:right'
+                    74: 'place_block:right',
+
+                    // E
+                    69: 'interact'
                 })[event.keyCode]);
             }
         }
@@ -221,7 +227,7 @@ var url = (function(){
     if (window.location.hash == '#dev') {
         return 'ws://localhost:4000';
     } else {
-        return 'ws://192.168.1.50:4000';
+        return 'ws://192.168.1.42:4000';
     }
 })();
 

@@ -196,5 +196,20 @@ textures = {
         "texture_ff_name": "Diamond Block",
         "traversable": true,
         "stable": true
+    },
+    "glass": {
+        "texture_id": 46,
+        "texture_ff_name": "Glass Pane",
+        "traversable": false,
+        "stable": false,
+        "drops":false
+    },
+    "leonardschuetz": {
+        "texture_id": 47,
+        "texture_ff_name": "Leonard Schuetz",
+        "traversable": false,
+        "stable": true,
+        "drops": false,
+        "infinite": true
     }
 }

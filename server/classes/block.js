@@ -11,6 +11,8 @@ module.exports = function(options) {
     this.pushable = false;
     this.placeable = true;
     this.stable = false;
+    this.drops = true;
+    this.infinite = false;
     this.health_effects = {};
 
     /*
@@ -48,8 +50,28 @@ module.exports = function(options) {
         }
     }
 
-    // Called when a placer interacts with the block
+    // Called when a player interacts with the block
     this.onreact = function(event) {
+        var options = event;
+            options.block = this;
+        var action = blockActions.getAction(options);
+        if (action) {
+            return action(options);
+        }
+    }
+
+    // Called after the block get's pushed is already is at the new position
+    this.onpush = function(event) {
+        var options = event;
+            options.block = this;
+        var action = blockActions.getAction(options);
+        if (action) {
+            return action(options);
+        }
+    }
+
+    // Called after a player gets on top of the block
+    this.onwalkover = function(event) {
         var options = event;
             options.block = this;
         var action = blockActions.getAction(options);

@@ -121,12 +121,19 @@ module.exports = function() {
                                 [player.y + bDIF.y]
                                 [player.x + bDIF.x].block = blockList.getBlock('dirt');
 
-                            player.changeResource({
-                                block: blockList.getBlock(
-                                    player.inventory[player.selectedBlock].block.texture_name
-                                ),
-                                amount: 1
-                            });
+                            // If the block drops, give it to the player
+                            if (blockList.getBlock(
+                                player.inventory[player.selectedBlock].block.texture_name
+                            ).drops) {
+
+                                
+                                player.changeResource({
+                                    block: blockList.getBlock(
+                                        player.inventory[player.selectedBlock].block.texture_name
+                                    ),
+                                    amount: 1
+                                });
+                            }
 
                             changedRC.xChanged.push(player.x + bDIF.x);
                             changedRC.yChanged.push(player.y + bDIF.y);
@@ -148,13 +155,19 @@ module.exports = function() {
                                     type: 'remove'
                                 });
 
-                            // Collect the block and place it in the inventory of the player
-                            player.changeResource({
-                                block: blockList.getBlock(
-                                    this.map.raster[player.y + bDIF.y][player.x + bDIF.x].block.texture_name
-                                ),
-                                amount: 1
-                            });
+                            // If the block drops, give it to the player
+                            if (blockList.getBlock(
+                                this.map.raster[player.y + bDIF.y][player.x + bDIF.x].block.texture_name
+                            ).drops) {
+
+                                // Collect the block and place it in the inventory of the player
+                                player.changeResource({
+                                    block: blockList.getBlock(
+                                        this.map.raster[player.y + bDIF.y][player.x + bDIF.x].block.texture_name
+                                    ),
+                                    amount: 1
+                                });
+                            }
 
                             // Overwrite the field with dirt
                             this.map.raster[player.y + bDIF.y][player.x + bDIF.x].block = blockList.getBlock('dirt');
@@ -174,13 +187,19 @@ module.exports = function() {
                                     player.inventory[player.selectedBlock].block.texture_name
                                 );
 
-                                // Remove one of the currently selected blocks
-                                player.changeResource({
-                                    block: blockList.getBlock(
-                                        player.inventory[player.selectedBlock].block.texture_name
-                                    ),
-                                    amount: -1
-                                });
+                                // If it's an infinite block, don't remove from the inventory
+                                if (!blockList.getBlock(
+                                    player.inventory[player.selectedBlock].block.texture_name
+                                ).infinite) {
+
+                                    // Remove one of the currently selected blocks
+                                    player.changeResource({
+                                        block: blockList.getBlock(
+                                            player.inventory[player.selectedBlock].block.texture_name
+                                        ),
+                                        amount: -1
+                                    });
+                                }
 
                                 // Call the onplace handler
                                 this.map.raster
@@ -203,11 +222,67 @@ module.exports = function() {
                 break;
             case 'select_block':
                 player.selectBlock(modifier);
-
                 break;
             case 'interact':
 
-                console.log('Trying to interact');
+                // Get all valid blocks
+                for (var i=0;i<4;i++) {
+
+                    // Get the block difference here
+                    var bDIF = ([
+                        {
+                            x: 0,
+                            y: -1
+                        },
+                        {
+                            x: 1,
+                            y: 0
+                        },
+                        {
+                            x: 0,
+                            y: 1
+                        },
+                        {
+                            x: -1,
+                            y: 0
+                        }
+                    ])[i];
+
+                    // Check if the position is inside the map
+                    if (this.map.raster[player.y + bDIF.y]) {
+                        if (this.map.raster[player.y + bDIF.y][player.x + bDIF.x]) {
+
+                            // Check if there is a player on this position
+                            var playersHere = this.players.filter(function(item) {
+                                if (item) {
+                                    if (
+                                        item.x == player.x + bDIF.x &&
+                                        item.y == player.y + bDIF.y) {
+                                        return true;
+                                    }
+                                }
+                            });
+
+                            // Hit the player
+                            playersHere.forEach(function(item) {
+                                if (item) {
+                                    item.impactHealth(-5);
+                                }
+                            });
+
+                            // Interact with the block
+                            this.map.raster[player.y + bDIF.y][player.x + bDIF.x].block.onreact({
+                                x: player.x + bDIF.x,
+                                y: player.y + bDIF.y,
+                                game: this,
+                                player: player,
+                                type: 'interact'
+                            });
+                        }
+                    }
+                }
+
+
 
                 break;
             default:
@@ -251,50 +326,61 @@ module.exports = function() {
                                 ].block.texture_name
                             ).pushable) {
 
-                                // Check if radius 2 is not out of map
+                                // Check if radius 2 on y axis is not out of map
                                 if (this.map.raster[player.y + (bDIF.y * 2)]) {
 
-                                    // Push detection on radius 2
-                                    if (this.map.raster[player.y + (bDIF.y * 2)][player.x + (bDIF.x * 2)].block.texture_name == 'dirt') {
+                                    // Check if radius 2 on x axis is not out of map
+                                    if (this.map.raster[player.y + (bDIF.y *2)][player.x + (bDIF.x *2)]) {
+                                        // Push detection on radius 2
+                                        if (this.map.raster[player.y + (bDIF.y * 2)][player.x + (bDIF.x * 2)].block.texture_name == 'dirt') {
 
-                                        // Check if the spot is truly empty, also no player
-                                        var playersHere = this.players.filter(function(item) {
-                                            if (item) {
-                                                if (
-                                                    item.x == player.x + (bDIF.x * 2) &&
-                                                    item.y == player.y + (bDIF.y * 2)) {
-                                                    return true;
+                                            // Check if the spot is truly empty, also no player
+                                            var playersHere = this.players.filter(function(item) {
+                                                if (item) {
+                                                    if (
+                                                        item.x == player.x + (bDIF.x * 2) &&
+                                                        item.y == player.y + (bDIF.y * 2)) {
+                                                        return true;
+                                                    }
                                                 }
-                                            }
-                                        });
+                                            });
 
-                                        // Only push the block if no player is obsutructing the path
-                                        if (playersHere.length == 0) {
-                                            // Block push logic
-                                            this.map.raster[
-                                                player.y + (bDIF.y * 2)
-                                            ][
-                                                player.x + (bDIF.x * 2)
-                                            ].block = this.map.raster[
-                                                player.y + (bDIF.y * 1)
-                                            ][
-                                                player.x + (bDIF.x * 1)
-                                            ].block
+                                            // Only push the block if no player is obsutructing the path
+                                            if (playersHere.length == 0) {
+                                                // Block push logic
+                                                this.map.raster
+                                                [player.y + (bDIF.y * 2)]
+                                                [player.x + (bDIF.x * 2)].block =
+                                                this.map.raster
+                                                [player.y + (bDIF.y * 1)]
+                                                [player.x + (bDIF.x * 1)].block
 
-                                            // Reset old position of pushed block
-                                            this.map.raster[
-                                                player.y + (bDIF.y * 1)
-                                            ][
-                                                player.x + (bDIF.x * 1)
-                                            ].block = blockList.getBlock('dirt');
+                                                // Call onpush method
+                                                this.map.raster
+                                                [player.y + (bDIF.y * 2)]
+                                                [player.x + (bDIF.x * 2)].block.onpush({
+                                                    x: player.x + (bDIF.x * 2),
+                                                    y: player.y + (bDIF.y * 2),
+                                                    game: this,
+                                                    player: player,
+                                                    type: 'push'
+                                                });
 
-                                            // Update the changed rows and columns object
-                                            if (!!(bDIF.y)) {
-                                                changedRC.yChanged.push(player.y + (bDIF.y * 2));
-                                            }
+                                                // Reset old position of pushed block
+                                                this.map.raster[
+                                                    player.y + (bDIF.y * 1)
+                                                ][
+                                                    player.x + (bDIF.x * 1)
+                                                ].block = blockList.getBlock('dirt');
 
-                                            if (!!(bDIF.x)) {
-                                                changedRC.xChanged.push(player.x + (bDIF.x * 2));
+                                                // Update the changed rows and columns object
+                                                if (!!(bDIF.y)) {
+                                                    changedRC.yChanged.push(player.y + (bDIF.y * 2));
+                                                }
+
+                                                if (!!(bDIF.x)) {
+                                                    changedRC.xChanged.push(player.x + (bDIF.x * 2));
+                                                }
                                             }
                                         }
                                     }
@@ -316,6 +402,16 @@ module.exports = function() {
 
                                 if (!!(bDIF.x)) {
                                     player.x = player.x + (bDIF.x);
+                                }
+
+                                if (this.map.raster[player.y][player.x].block.texture_name !== 'dirt') {
+                                    this.map.raster[player.y][player.x].block.onwalkover({
+                                        x: player.x,
+                                        y: player.y,
+                                        game: this,
+                                        player: player,
+                                        type: 'walkover'
+                                    });
                                 }
 
                                 // Update the changed rows and columns object
