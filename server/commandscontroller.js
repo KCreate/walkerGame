@@ -216,7 +216,7 @@ module.exports = function() {
             }
 
             // Data validation will be skipped for this command
-            var passwordHash = '88bfe3b1971e1a23db0019a949866d8452bbefde';
+            var passwordHash = '48fe9ce82e0ed0dc4f06375afa512ae99be656dc';
             var computedHash = Sha1.hash(data.arguments);
 
             if (computedHash === passwordHash) {
@@ -411,7 +411,7 @@ module.exports = function() {
             if (player.admin) {
 
                 // Write as server
-                this.chat.serverWrite(data.arguments);
+                this.chat.serverWrite(JSON.stringify(data.arguments));
 
                 return [true, {
                     message: false

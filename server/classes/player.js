@@ -22,19 +22,16 @@ module.exports = function(key, id) {
     // Health
     this.health = 100;
     this.impactHealth = function(amount) {
-        if (amount < 0) {
-            if (this.health - Math.abs(amount) < 0) {
-                this.health = 0;
-                return;
-            }
-        } else {
-            if (this.health + amount > 100) {
-                this.health = 100;
-                return;
-            }
-        }
 
+        // Change the health
         this.health += amount;
+
+        // Max and min health
+        if (this.health > 100) {
+            this.health = 100;
+        } else if (this.health < 0) {
+            this.health = 0;
+        }
 
         if (this.onchange) {
             this.onchange(this);
@@ -45,11 +42,19 @@ module.exports = function(key, id) {
     this.inventory = [
         {
             block: blockList.getBlock('wood'),
-            amount: 100
+            amount: 200
+        },
+        {
+            block: blockList.getBlock('stone'),
+            amount: 200
         },
         {
             block: blockList.getBlock('goldblock'),
             amount: 2
+        },
+        {
+            block: blockList.getBlock('tnt'),
+            amount: 5
         }
     ];
     this.selectedBlock = 0;

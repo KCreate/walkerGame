@@ -19,7 +19,7 @@ module.exports = function() {
             var blockData = this.textures[texture];
                 blockData.texture_name = texture;
 
-            var block = new Block(blockData);
+            var block = new Block(blockData, this);
             this.blockList[texture] = block;
         }
     }

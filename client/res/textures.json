@@ -161,8 +161,7 @@ textures = {
     },
     "tnt": {
         "texture_id": 39,
-        "texture_ff_name": "TNT",
-        "pushable": true
+        "texture_ff_name": "TNT"
     },
     "wood": {
         "texture_id": 40,
@@ -207,6 +206,22 @@ textures = {
     "leonardschuetz": {
         "texture_id": 47,
         "texture_ff_name": "Leonard Schuetz",
+        "traversable": false,
+        "stable": true,
+        "drops": false,
+        "infinite": true
+    },
+    "johannabaumgartner": {
+        "texture_id": 48,
+        "texture_ff_name": "Johanna Baumgartner",
+        "traversable": false,
+        "stable": true,
+        "drops": false,
+        "infinite": true
+    },
+    "kartoffelface": {
+        "texture_id": 49,
+        "texture_ff_name": "Kartoffel Face",
         "traversable": false,
         "stable": true,
         "drops": false,

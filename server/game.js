@@ -126,7 +126,7 @@ module.exports = function() {
                                 player.inventory[player.selectedBlock].block.texture_name
                             ).drops) {
 
-                                
+
                                 player.changeResource({
                                     block: blockList.getBlock(
                                         player.inventory[player.selectedBlock].block.texture_name
@@ -266,7 +266,7 @@ module.exports = function() {
                             // Hit the player
                             playersHere.forEach(function(item) {
                                 if (item) {
-                                    item.impactHealth(-5);
+                                    item.impactHealth(-3);
                                 }
                             });
 
@@ -281,8 +281,6 @@ module.exports = function() {
                         }
                     }
                 }
-
-
 
                 break;
             default:
@@ -498,9 +496,9 @@ module.exports = function() {
         for (var i=0; (i<this.playerLimit && !slotFound); i++) {
             if (!this.players[i] && !slotFound) {
                 this.players[i] = new protoPlayer(name, i);
-                this.players[i].onchange = function() {
+                this.players[i].onchange = function(player) {
                     if (this.playersChanged) {
-                        this.playersChanged(this);
+                        this.playersChanged(this.players);
                     }
                 }.bind(this);
 
@@ -517,7 +515,7 @@ module.exports = function() {
             }
 
             if (this.playersChanged) {
-                this.playersChanged(this);
+                this.playersChanged(this.players);
             }
 
             return true;
@@ -548,7 +546,7 @@ module.exports = function() {
             }
 
             if (this.playersChanged) {
-                this.playersChanged(this);
+                this.playersChanged(this.players);
             }
         }
     }

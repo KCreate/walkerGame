@@ -225,9 +225,9 @@ var inventoryViewController = function(websocket) {
 */
 var url = (function(){
     if (window.location.hash == '#dev') {
-        return 'ws://localhost:4000';
+        return 'ws://localhost:66274';
     } else {
-        return 'ws://192.168.1.42:4000';
+        return 'ws://192.168.1.42:6628';
     }
 })();
 
@@ -260,7 +260,12 @@ websocket.onmessage = function(event) {
 }
 
 websocket.onclose = function(event) {
-    document.write('You either got kicked or the server is down. lol');
+    document.write([
+        '<link rel="stylesheet" href="./res/css/master.css">',
+        '<div id="closeMessage">',
+            '<p>You either got kicked, have no health left or the server crashed.</p>',
+        '</div>'
+    ].join('\n'));
 }
 
 window.onbeforeclose = function() {

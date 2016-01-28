@@ -1,7 +1,10 @@
 // Dependencies
-var blockActions        = new (require('./blockactions.js'))();
+var blockActions            = new (require('./blockactions.js'))();
 
-module.exports = function(options) {
+module.exports = function(options, blockList) {
+
+    // set the blockList, this is a dirty hack because the requires would get circular
+    blockActions.blockList = blockList;
 
     // default properties of a block
     this.texture_name = 'dirt';
@@ -11,6 +14,7 @@ module.exports = function(options) {
     this.pushable = false;
     this.placeable = true;
     this.stable = false;
+    this.onlyadminbreakable = false;
     this.drops = true;
     this.infinite = false;
     this.health_effects = {};
@@ -79,9 +83,6 @@ module.exports = function(options) {
             return action(options);
         }
     }
-
-    // Public callback when the block changes something
-    this.didChange = undefined
 
     // Init method
     this.create = function(options) {

@@ -10,9 +10,9 @@ var Game                = new (require('./game.js'))();
 var CommandsController  = new (require('./commandscontroller.js'))();
 
 // Some constants
-var ControlPort         = 4001;
-var GamePort            = 4000;
-var DefaultMapSize      = 18;
+var ControlPort         = 6627;
+var GamePort            = 6628;
+var DefaultMapSize      = 15;
 
 // Chat Controller Setup
 Chat.on('update', function(update) {
@@ -137,7 +137,22 @@ Game.render = function(game, changedRC) {
 }
 
 // Notify sockets that something changed reagarding players
-Game.playersChanged = function(game) {
+Game.playersChanged = function(players) {
+    console.log(players);
+
+    // Kick and close all connections of dead players
+    players.forEach(function(player) {
+        if (player) {
+            if (player.health === 0) {
+                GameSocket.connections.forEach(function(conn, index) {
+                    if (conn.key === player.key) {
+                        conn.close();
+                    }
+                });
+            }
+        }
+    });
+
     Chat.fireEvent('playerInfoChanged');
 }
 
@@ -151,7 +166,8 @@ CommandsController.startRegistering();
     Securely close the websocket connection without crashing
 */
 function secureClose(conn) {
-    if (conn.readyState.OPEN || conn.readyState.CLOSING) {
+    console.log(connreadyState);
+    if (conn.readyState === 1 || conn.readyState === 2) {
         try { conn.close(); } catch (e) { console.log(e); }
     }
 }

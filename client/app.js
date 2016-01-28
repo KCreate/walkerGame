@@ -161,8 +161,7 @@ textures = {
     },
     "tnt": {
         "texture_id": 39,
-        "texture_ff_name": "TNT",
-        "pushable": true
+        "texture_ff_name": "TNT"
     },
     "wood": {
         "texture_id": 40,
@@ -207,6 +206,22 @@ textures = {
     "leonardschuetz": {
         "texture_id": 47,
         "texture_ff_name": "Leonard Schuetz",
+        "traversable": false,
+        "stable": true,
+        "drops": false,
+        "infinite": true
+    },
+    "johannabaumgartner": {
+        "texture_id": 48,
+        "texture_ff_name": "Johanna Baumgartner",
+        "traversable": false,
+        "stable": true,
+        "drops": false,
+        "infinite": true
+    },
+    "kartoffelface": {
+        "texture_id": 49,
+        "texture_ff_name": "Kartoffel Face",
         "traversable": false,
         "stable": true,
         "drops": false,
@@ -828,9 +843,9 @@ var inventoryViewController = function(websocket) {
 */
 var url = (function(){
     if (window.location.hash == '#dev') {
-        return 'ws://localhost:4000';
+        return 'ws://localhost:66274';
     } else {
-        return 'ws://192.168.1.42:4000';
+        return 'ws://192.168.1.42:6628';
     }
 })();
 
@@ -863,7 +878,12 @@ websocket.onmessage = function(event) {
 }
 
 websocket.onclose = function(event) {
-    document.write('You either got kicked or the server is down. lol');
+    document.write([
+        '<link rel="stylesheet" href="./res/css/master.css">',
+        '<div id="closeMessage">',
+            '<p>You either got kicked, have no health left or the server crashed.</p>',
+        '</div>'
+    ].join('\n'));
 }
 
 window.onbeforeclose = function() {
