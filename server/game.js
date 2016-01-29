@@ -502,7 +502,7 @@ module.exports = function() {
     this.topographies = [];
 
     this.players = [];
-    this.playerLimit = 36;
+    this.playerLimit = 8;
     this.playersChanged = undefined;
 
     this.playerForKey = function(key) {
