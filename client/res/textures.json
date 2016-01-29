@@ -118,5 +118,14 @@ textures = {
         "texture_ff_name": "Bedrock",
         "stable": true,
         "onlyadminbreakable": true
+    },
+    "sword": {
+        "texture_id": 25,
+        "texture_ff_name": "Sword",
+        "item": true,
+        "drops": false,
+        "health_effects": {
+            "playerDamage": 12
+        }
     }
 }

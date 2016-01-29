@@ -12,11 +12,11 @@ module.exports = function(options, blockList) {
     this.texture_id = 36;
     this.traversable = false;
     this.pushable = false;
-    this.placeable = true;
     this.stable = false;
     this.onlyadminbreakable = false;
     this.drops = true;
     this.infinite = false;
+    this.item = false;
     this.health_effects = {};
 
     /*

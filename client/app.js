@@ -118,6 +118,15 @@ textures = {
         "texture_ff_name": "Bedrock",
         "stable": true,
         "onlyadminbreakable": true
+    },
+    "sword": {
+        "texture_id": 25,
+        "texture_ff_name": "Sword",
+        "item": true,
+        "drops": false,
+        "health_effects": {
+            "playerDamage": 12
+        }
     }
 }
 
@@ -735,9 +744,9 @@ var inventoryViewController = function(websocket) {
 */
 var url = (function(){
     if (window.location.hash == '#dev') {
-        return 'ws://localhost:6628';
+        return 'ws://localhost:4000';
     } else {
-        return 'ws://192.168.1.50:6628';
+        return 'ws://192.168.1.42:4000';
     }
 })();
 

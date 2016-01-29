@@ -59,19 +59,23 @@ module.exports = function() {
                 var bDIF = ({
                     up: {
                         x: 0,
-                        y: -1
+                        y: -1,
+                        direction: 'up'
                     },
                     right: {
                         x: 1,
-                        y: 0
+                        y: 0,
+                        direction: 'right'
                     },
                     down: {
                         x: 0,
-                        y: 1
+                        y: 1,
+                        direction: 'down'
                     },
                     left: {
                         x: -1,
-                        y: 0
+                        y: 0,
+                        direction: 'left'
                     }
                 })[modifier];
 
@@ -205,40 +209,67 @@ module.exports = function() {
                             // Check if the player has enough of the required resource
                             if (player.inventory[player.selectedBlock].amount > 0) {
 
-                                // Place the currently selected block
-                                this.map.raster
-                                [player.y + bDIF.y]
-                                [player.x + bDIF.x].block = blockList.getBlock(
-                                    player.inventory[player.selectedBlock].block.texture_name
-                                );
+                                // Check if the resource is not an item
+                                if (!player.inventory[player.selectedBlock].block.item) {
+                                    // Place the currently selected block
 
-                                // If it's an infinite block, don't remove from the inventory
-                                if (!blockList.getBlock(
-                                    player.inventory[player.selectedBlock].block.texture_name
-                                ).infinite) {
-
-                                    // Remove one of the currently selected blocks
-                                    player.changeResource({
-                                        block: blockList.getBlock(
-                                            player.inventory[player.selectedBlock].block.texture_name
-                                        ),
-                                        amount: -1
-                                    });
-                                }
-
-                                // Call the onplace handler
-                                this.map.raster
+                                    this.map.raster
                                     [player.y + bDIF.y]
-                                    [player.x + bDIF.x].block.onplace({
-                                        x: player.x + bDIF.x,
-                                        y: player.y + bDIF.y,
-                                        game: this,
-                                        player: player,
-                                        type: 'place'
-                                    });
+                                    [player.x + bDIF.x].block = blockList.getBlock(
+                                        player.inventory[player.selectedBlock].block.texture_name
+                                    );
 
-                                changedRC.xChanged.push(player.x + bDIF.x);
-                                changedRC.yChanged.push(player.y + bDIF.y);
+                                    // If it's an infinite block, don't remove from the inventory
+                                    if (!blockList.getBlock(
+                                        player.inventory[player.selectedBlock].block.texture_name
+                                    ).infinite) {
+
+                                        // Remove one of the currently selected blocks
+                                        player.changeResource({
+                                            block: blockList.getBlock(
+                                                player.inventory[player.selectedBlock].block.texture_name
+                                            ),
+                                            amount: -1
+                                        });
+                                    }
+
+                                    // Call the onplace handler
+                                    this.map.raster
+                                        [player.y + bDIF.y]
+                                        [player.x + bDIF.x].block.onplace({
+                                            x: player.x + bDIF.x,
+                                            y: player.y + bDIF.y,
+                                            game: this,
+                                            player: player,
+                                            type: 'place'
+                                        });
+
+                                    changedRC.xChanged.push(player.x + bDIF.x);
+                                    changedRC.yChanged.push(player.y + bDIF.y);
+                                }
+                            }
+                        }
+                    } else {
+                        // There is a player at this position
+
+                        // Check if the selected resource is an item
+                        if (player.inventory[player.selectedBlock].block.item) {
+
+                            // Interact with the player
+                            this.action('interact:'+bDIF.direction, player.key);
+
+                            // If the item is not infinite, remove one
+                            if (!blockList.getBlock(
+                                player.inventory[player.selectedBlock].block.texture_name
+                            ).infinite) {
+
+                                // Remove one of the currently selected blocks
+                                player.changeResource({
+                                    block: blockList.getBlock(
+                                        player.inventory[player.selectedBlock].block.texture_name
+                                    ),
+                                    amount: -1
+                                });
                             }
                         }
                     }
@@ -250,55 +281,85 @@ module.exports = function() {
                 break;
             case 'interact':
 
+                // Get the block difference here
+                var bDIF = [
+                    {
+                        x: 0,
+                        y: -1,
+                        direction: 'up'
+                    },
+                    {
+                        x: 1,
+                        y: 0,
+                        direction: 'right'
+                    },
+                    {
+                        x: 0,
+                        y: 1,
+                        direction: 'down'
+                    },
+                    {
+                        x: -1,
+                        y: 0,
+                        direction: 'left'
+                    }
+                ];
+
                 // Get all valid blocks
                 for (var i=0;i<4;i++) {
 
-                    // Get the block difference here
-                    var bDIF = ([
-                        {
-                            x: 0,
-                            y: -1
-                        },
-                        {
-                            x: 1,
-                            y: 0
-                        },
-                        {
-                            x: 0,
-                            y: 1
-                        },
-                        {
-                            x: -1,
-                            y: 0
+                    // If a modifier is given, ignore all other cases
+                    if (modifier) {
+                        if (bDIF[i].direction !== modifier) {
+                            continue;
                         }
-                    ])[i];
+                    }
 
                     // Check if the position is inside the map
-                    if (this.map.raster[player.y + bDIF.y]) {
-                        if (this.map.raster[player.y + bDIF.y][player.x + bDIF.x]) {
+                    if (this.map.raster[player.y + bDIF[i].y]) {
+                        if (this.map.raster[player.y + bDIF[i].y][player.x + bDIF[i].x]) {
 
                             // Check if there is a player on this position
                             var playersHere = this.players.filter(function(item) {
                                 if (item) {
                                     if (
-                                        item.x == player.x + bDIF.x &&
-                                        item.y == player.y + bDIF.y) {
+                                        item.x == player.x + bDIF[i].x &&
+                                        item.y == player.y + bDIF[i].y) {
                                         return true;
                                     }
                                 }
                             });
 
-                            // Hit the player
-                            playersHere.forEach(function(item) {
-                                if (item) {
-                                    item.impactHealth(-3);
+                            if (playersHere.length > 0) {
+
+                                var damageDealt = 0;
+
+                                // Check if the player who started the interaction has an item in his hand
+                                if (player.inventory[player.selectedBlock].block.item) {
+                                    if (player.inventory[player.selectedBlock].block.health_effects) {
+                                        if (player.inventory[player.selectedBlock].block.health_effects.playerDamage) {
+                                            damageDealt = player.inventory[player.selectedBlock].block.health_effects.playerDamage;
+                                        }
+                                    }
                                 }
-                            });
+
+                                // Cooldown logic
+                                if ((Date.now() - player.joinedAt) >= this.damageCooldown) {
+                                    // Hit the player
+                                    playersHere.forEach(function(item) {
+                                        if (item) {
+                                            item.impactHealth(-damageDealt);
+                                        }
+                                    });
+                                } else {
+                                    player.impactHealth(-0.5);
+                                }
+                            }
 
                             // Interact with the block
-                            this.map.raster[player.y + bDIF.y][player.x + bDIF.x].block.onreact({
-                                x: player.x + bDIF.x,
-                                y: player.y + bDIF.y,
+                            this.map.raster[player.y + bDIF[i].y][player.x + bDIF[i].x].block.onreact({
+                                x: player.x + bDIF[i].x,
+                                y: player.y + bDIF[i].y,
                                 game: this,
                                 player: player,
                                 type: 'interact'
@@ -500,6 +561,8 @@ module.exports = function() {
     };
 
     this.topographies = [];
+
+    this.damageCooldown = 4000;
 
     this.players = [];
     this.playerLimit = 8;

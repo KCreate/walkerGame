@@ -4,6 +4,9 @@ var blockList       = require('./blocklist.js');
 
 module.exports = function(key, id) {
 
+    // Timing
+    this.joinedAt = Date.now();
+
     // Key and name
     this.id = id;
     this.key = key;
@@ -41,8 +44,12 @@ module.exports = function(key, id) {
     //Inventory
     this.inventory = [
         {
+            block: blockList.getBlock('sword'),
+            amount: 100
+        },
+        {
             block: blockList.getBlock('wood'),
-            amount: 60
+            amount: 80
         },
         {
             block: blockList.getBlock('goldblock'),

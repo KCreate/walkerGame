@@ -10,8 +10,8 @@ var Game                = new (require('./game.js'))();
 var CommandsController  = new (require('./commandscontroller.js'))();
 
 // Some constants
-var ControlPort         = 6627;
-var GamePort            = 6628;
+var ControlPort         = 4001;
+var GamePort            = 4000;
 var DefaultMapSize      = 15;
 
 // Chat Controller Setup

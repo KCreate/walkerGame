@@ -425,6 +425,111 @@ module.exports = function() {
                 }];
             }
         }.bind(this));
+
+        /*
+            /tpa
+
+            Requires admin permissions
+        */
+        this.chat.commands.regCommand('tpa', function(data, player) {
+            // Error checking
+            if (data.err) {
+                console.log(data.err);
+                return [false, {
+                    message: this.templates('server_error', {
+                        command: data.command
+                    }, player)
+                }];
+            }
+
+            // Data validation
+            if (data.arguments === '') {
+                return [false, {
+                    message: this.templates('misc_error', {
+                        command: data.command,
+                        message: 'This command requires two arguments: X-Coordinate & Y-Coordinate'
+                    }, player)
+                }];
+            }
+
+            // Main action
+            if (player.admin) {
+
+                // Extract the blockname and amount
+                var argumentParts = data.arguments.split(' ');
+                var xcord = parseInt(argumentParts[0]);
+                var ycord = parseInt(argumentParts[1]);
+
+                // Validate numbers
+                if (typeof xcord !== 'number' || typeof ycord !== 'number') {
+                    return [false, {
+                        message: this.templates('misc_error', {
+                            command: data.command,
+                            message: 'Invalid arguments passed'
+                        }, player)
+                    }];
+                }
+
+                // Check if the block exists
+                if (this.game.map.raster[ycord]) {
+                    if (this.game.map.raster[ycord][xcord]) {
+
+                        // Check if the block is dirt or traversable
+                        if (this.game.map.raster[ycord][xcord].block.texture_name == 'dirt' ||
+                            this.game.map.raster[ycord][xcord].block.traversable) {
+
+                            // Keep track of all changed blocks
+                            var changedRC = {
+                                xChanged: [],
+                                yChanged: []
+                            };
+
+                            changedRC.xChanged.push(player.x);
+                            changedRC.yChanged.push(player.y);
+                            changedRC.xChanged.push(xcord);
+                            changedRC.yChanged.push(ycord);
+
+                            // Teleport the player
+                            player.x = xcord;
+                            player.y = ycord;
+
+                            // Call the render method
+                            if (this.game.render) {
+                                this.game.render(this.game, changedRC);
+                            }
+
+                            return [true, {
+                                message: this.templates('success', {
+                                    command: data.command,
+                                    message: player.name() + ' teleported himself'
+                                }, player)
+                            }];
+                        } else {
+                            return [false, {
+                                message: this.templates('misc_error', {
+                                    command: data.command,
+                                    message: 'Coordinates are obstructed'
+                                }, player)
+                            }];
+                        }
+                    }
+                }
+
+                // Response if both block validations fail
+                return [false, {
+                    message: this.templates('misc_error', {
+                        command: data.command,
+                        message: 'These coordinates are out of map'
+                    }, player)
+                }];
+            } else {
+                return [false, {
+                    message: this.templates('missing_permissions', {
+                        command: data.command
+                    }, player)
+                }];
+            }
+        }.bind(this));
     }
 
     // Default response message templates
