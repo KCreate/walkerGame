@@ -127,6 +127,32 @@ textures = {
         "health_effects": {
             "playerDamage": 12
         }
+    },
+    "craftingwand": {
+        "texture_id": 26,
+        "texture_ff_name": "Crafting Wand",
+        "item": true,
+        "drops": false,
+        "infinite": true
+    },
+    "healingwand": {
+        "texture_id": 27,
+        "texture_ff_name": "Healing Wand",
+        "item": true,
+        "drops": false,
+        "infinite": true,
+        "health_effects": {
+            "playerDamage": -5
+        }
+    },
+    "rifle": {
+        "texture_id": 28,
+        "texture_ff_name": "Rifle",
+        "item": true,
+        "drops": false,
+        "health_effects": {
+            "playerDamage": 100
+        }
     }
 }
 

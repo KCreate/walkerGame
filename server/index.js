@@ -12,7 +12,7 @@ var CommandsController  = new (require('./commandscontroller.js'))();
 // Some constants
 var ControlPort         = 4001;
 var GamePort            = 4000;
-var DefaultMapSize      = 15;
+var DefaultMapSize      = 25;
 
 // Chat Controller Setup
 Chat.on('update', function(update) {
@@ -105,7 +105,7 @@ var GameSocket = WebSocket.createServer(function (conn) {
     });
 
     conn.on('error', function(err) {
-        console.log(conn.key, err);
+        console.log("line 108" + err);
         secureClose(conn);
     });
 
@@ -115,7 +115,7 @@ var GameSocket = WebSocket.createServer(function (conn) {
     Game Interaction and Response
 */
 Game.clearMap(DefaultMapSize, DefaultMapSize);
-Game.verbose = true;
+Game.verbose = false;
 
 // Notify sockets that the map changed
 Game.render = function(game, changedRC) {
