@@ -370,9 +370,9 @@ module.exports = function() {
                                         [2, -1],
                                         [2,  0],
                                         [2,  1],
-                                        [2, -1],
-                                        [2,  0],
-                                        [2,  1]
+                                        [3, -1],
+                                        [3,  0],
+                                        [3,  1]
                                     ],
                                     left: [
                                         [-1, -3],
@@ -412,7 +412,7 @@ module.exports = function() {
                                 var craftingResult = Crafting.craft(blocks.map(function(item) {
 
                                     var name = item.texture_name;
-                                    
+
                                     if (name == 'dirt') {
                                         name = '';
                                     }
@@ -696,7 +696,7 @@ module.exports = function() {
         }
         if (slotFound) {
             if (this.render) {
-                this.render(this);
+                this.render(this, false);
             }
 
             if (this.playersChanged) {
@@ -728,7 +728,7 @@ module.exports = function() {
 
         if (playerRemoved) {
             if (this.render) {
-                this.render(this);
+                this.render(this, false);
             }
 
             if (this.playersChanged) {

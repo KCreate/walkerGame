@@ -76,8 +76,6 @@ var gameController = function(websocket) {
             this.socketKey = event.game.key;
         }
 
-        console.log(event);
-
         // Measure render performance
         var start = window.performance.now();
 
@@ -234,6 +232,8 @@ inventoryViewController = new inventoryViewController(websocket);
 
 websocket.onmessage = function(event) {
     var data = JSON.parse(event.data);
+
+    console.log(data);
 
     // Different paths
     switch (data.type) {

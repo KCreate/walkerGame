@@ -234,7 +234,7 @@ function GCRender(data) {
     for (var x=0;x<data.map.width;x++) {
 
         if (data.changedRC) {
-            if (!(data.changedRC.xChanged.indexOf(x) != -1)) {
+            if (data.changedRC.xChanged.indexOf(x) < 0) {
                 continue;
             }
         }
@@ -250,7 +250,7 @@ function GCRender(data) {
         for (var y=0;y<data.map.height;y++) {
 
             if (data.changedRC) {
-                if (!(data.changedRC.yChanged.indexOf(y) != -1)) {
+                if (data.changedRC.yChanged.indexOf(y) < 0) {
                     continue;
                 }
             }
@@ -410,6 +410,10 @@ function renderChatNode(data) {
     if (data.author && data.message && data.time) {
         var element = document.createElement('div');
 
+        // Meta container
+        var metaContainer = document.createElement('div');
+            metaContainer.className = 'chat-metacontainer';
+
         // Span nodes
         var timenode = document.createElement('span');
             timenode.className  = 'chat-date';
@@ -421,9 +425,11 @@ function renderChatNode(data) {
             authornode.className  = (data.author.admin ? 'chat-author-admin' : 'chat-author');
             authornode.appendChild(document.createTextNode((data.author.nickname || data.author.key)));
 
-        element.appendChild(timenode);
+        metaContainer.appendChild(timenode);
+        metaContainer.appendChild(authornode);
+
+        element.appendChild(metaContainer);
         element.appendChild(messagenode);
-        element.appendChild(authornode);
 
         return element;
     }
@@ -621,8 +627,6 @@ var gameController = function(websocket) {
             this.socketKey = event.game.key;
         }
 
-        console.log(event);
-
         // Measure render performance
         var start = window.performance.now();
 
@@ -779,6 +783,8 @@ inventoryViewController = new inventoryViewController(websocket);
 
 websocket.onmessage = function(event) {
     var data = JSON.parse(event.data);
+
+    console.log(data);
 
     // Different paths
     switch (data.type) {

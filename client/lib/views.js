@@ -3,6 +3,10 @@ function renderChatNode(data) {
     if (data.author && data.message && data.time) {
         var element = document.createElement('div');
 
+        // Meta container
+        var metaContainer = document.createElement('div');
+            metaContainer.className = 'chat-metacontainer';
+
         // Span nodes
         var timenode = document.createElement('span');
             timenode.className  = 'chat-date';
@@ -14,9 +18,11 @@ function renderChatNode(data) {
             authornode.className  = (data.author.admin ? 'chat-author-admin' : 'chat-author');
             authornode.appendChild(document.createTextNode((data.author.nickname || data.author.key)));
 
-        element.appendChild(timenode);
+        metaContainer.appendChild(timenode);
+        metaContainer.appendChild(authornode);
+
+        element.appendChild(metaContainer);
         element.appendChild(messagenode);
-        element.appendChild(authornode);
 
         return element;
     }

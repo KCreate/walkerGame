@@ -141,39 +141,48 @@ body {
             background-color: #2c3e50;
 
             &>div {
-                height: auto;
-                line-height: 20px;
+                min-height: 50px;
 
-                padding: $MARGIN;
                 margin: calc(#{$MARGIN} - 2px) 0;
+                padding: 5px;
                 background-color: #34495e;
-
-                position: relative;
 
                 overflow: hidden;
 
-                &>* {
-                    float: left;
-                    height: 100%;
-                    color: #fafbfb;
+                .chat-metacontainer {
+                    overflow: auto;
+                    font-size: 0.9em;
+
+                    &>* {
+                        color: #fafbfb;
+                        display: block;
+                    }
+
+                    .chat-date {
+                        float: left;
+                        text-align: left;
+                        width: 70px;
+                    }
+
+                    .chat-author {
+                        float: right;
+                        text-align: right;
+                        width: calc(100% - 70px);
+                    }
+
+                    .chat-author-admin {
+                        float: right;
+                        text-align: right;
+                        width: calc(100% - 70px);
+                        color: #f1c40f;
+                    }
+                }
+
+                .chat-message {
                     margin: 0;
-                }
+                    color: #fafbfb;
 
-                .chat-date {
-                    width: 70px;
-                    display: block;
-                    margin-right: $MARGIN;
-                }
-
-                .chat-author {
-                    position: absolute;
-                    right: calc(2 * #{$MARGIN});
-                }
-
-                .chat-author-admin {
-                    position: absolute;
-                    right: calc(2 * #{$MARGIN});
-                    color: #f1c40f;
+                    word-wrap: break-word;
                 }
             }
 
