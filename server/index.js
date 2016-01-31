@@ -115,7 +115,7 @@ var GameSocket = WebSocket.createServer(function (conn) {
     Game Interaction and Response
 */
 Game.clearMap(DefaultMapSize, DefaultMapSize);
-Game.verbose = false;
+Game.verbose = true;
 
 // Notify sockets that the map changed
 Game.render = function(game, changedRC) {

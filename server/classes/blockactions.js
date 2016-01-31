@@ -143,4 +143,7 @@ module.exports = function() {
 
         }
     }
+
+    // The blockList
+    this.blockList = undefined;
 }

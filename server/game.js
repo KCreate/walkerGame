@@ -1,8 +1,8 @@
 // Dependencies
 var fs              = require('fs');
 var protoPlayer     = require('./classes/player.js');
-var blockList       = require('./classes/blocklist.js');
-    blockList       = new blockList();
+var blockList       = new (require('./classes/blocklist.js'))();
+var Crafting        = new (require('./classes/crafting.js'))(blockList)
 
 // Exports
 module.exports = function() {
@@ -15,9 +15,8 @@ module.exports = function() {
             control == 'down' ||
             control == 'left' ||
             control == 'right' ||
-            control == 'place_block' ||
-            control == 'select_block' ||
-            control == 'interact')
+            control == 'interact' ||
+            control == 'select_block')
         ) {
             return false;
         }
@@ -30,6 +29,17 @@ module.exports = function() {
                 }
             }
         })[0];
+
+        /*
+            If the player starts an interact action, redirect
+        */
+        if (control == 'interact') {
+            if (player.inventory[player.selectedBlock].block.item) {
+                control = 'use_item';
+            } else {
+                control = 'place_block';
+            }
+        }
 
         if (!player) {
             return false;
@@ -52,32 +62,32 @@ module.exports = function() {
             yChanged:[]
         };
 
+        // Get the block difference here
+        var bDIF = ({
+            up: {
+                x: 0,
+                y: -1,
+                direction: 'up'
+            },
+            right: {
+                x: 1,
+                y: 0,
+                direction: 'right'
+            },
+            down: {
+                x: 0,
+                y: 1,
+                direction: 'down'
+            },
+            left: {
+                x: -1,
+                y: 0,
+                direction: 'left'
+            }
+        })[modifier];
+
         switch (control) {
             case 'place_block':
-
-                // Get the block difference here
-                var bDIF = ({
-                    up: {
-                        x: 0,
-                        y: -1,
-                        direction: 'up'
-                    },
-                    right: {
-                        x: 1,
-                        y: 0,
-                        direction: 'right'
-                    },
-                    down: {
-                        x: 0,
-                        y: 1,
-                        direction: 'down'
-                    },
-                    left: {
-                        x: -1,
-                        y: 0,
-                        direction: 'left'
-                    }
-                })[modifier];
 
                 // Check variable
                 var insideMap = false;
@@ -279,91 +289,169 @@ module.exports = function() {
             case 'select_block':
                 player.selectBlock(modifier);
                 break;
-            case 'interact':
+            case 'use_item':
 
-                // Get the block difference here
-                var bDIF = [
-                    {
-                        x: 0,
-                        y: -1,
-                        direction: 'up'
-                    },
-                    {
-                        x: 1,
-                        y: 0,
-                        direction: 'right'
-                    },
-                    {
-                        x: 0,
-                        y: 1,
-                        direction: 'down'
-                    },
-                    {
-                        x: -1,
-                        y: 0,
-                        direction: 'left'
-                    }
-                ];
+                // Check if the position is inside the map
+                if (this.map.raster[player.y + bDIF.y]) {
+                    if (this.map.raster[player.y + bDIF.y][player.x + bDIF.x]) {
 
-                // Get all valid blocks
-                for (var i=0;i<4;i++) {
-
-                    // If a modifier is given, ignore all other cases
-                    if (modifier) {
-                        if (bDIF[i].direction !== modifier) {
-                            continue;
-                        }
-                    }
-
-                    // Check if the position is inside the map
-                    if (this.map.raster[player.y + bDIF[i].y]) {
-                        if (this.map.raster[player.y + bDIF[i].y][player.x + bDIF[i].x]) {
-
-                            // Check if there is a player on this position
-                            var playersHere = this.players.filter(function(item) {
-                                if (item) {
-                                    if (
-                                        item.x == player.x + bDIF[i].x &&
-                                        item.y == player.y + bDIF[i].y) {
-                                        return true;
-                                    }
+                        // Check if there is a player on this position
+                        var playersHere = this.players.filter(function(item) {
+                            if (item) {
+                                if (
+                                    item.x == player.x + bDIF.x &&
+                                    item.y == player.y + bDIF.y) {
+                                    return true;
                                 }
-                            });
+                            }
+                        });
 
-                            if (playersHere.length > 0) {
+                        /*
+                            If a player stands on top of a block with an interaction,
+                            he will block other players from interacting with that block
+                        */
+                        if (playersHere.length > 0) {
 
-                                var damageDealt = 0;
+                            var damageDealt = 0;
 
-                                // Check if the player who started the interaction has an item in his hand
-                                if (player.inventory[player.selectedBlock].block.item) {
-                                    if (player.inventory[player.selectedBlock].block.health_effects) {
-                                        if (player.inventory[player.selectedBlock].block.health_effects.playerDamage) {
-                                            damageDealt = player.inventory[player.selectedBlock].block.health_effects.playerDamage;
-                                        }
+                            // Check if the player who started the interaction has an item in his hand
+                            if (player.inventory[player.selectedBlock].block.item) {
+                                if (player.inventory[player.selectedBlock].block.health_effects) {
+                                    if (player.inventory[player.selectedBlock].block.health_effects.playerDamage) {
+                                        damageDealt = player.inventory[player.selectedBlock].block.health_effects.playerDamage;
                                     }
-                                }
-
-                                // Cooldown logic
-                                if ((Date.now() - player.joinedAt) >= this.damageCooldown) {
-                                    // Hit the player
-                                    playersHere.forEach(function(item) {
-                                        if (item) {
-                                            item.impactHealth(-damageDealt);
-                                        }
-                                    });
-                                } else {
-                                    player.impactHealth(-0.5);
                                 }
                             }
 
-                            // Interact with the block
-                            this.map.raster[player.y + bDIF[i].y][player.x + bDIF[i].x].block.onreact({
-                                x: player.x + bDIF[i].x,
-                                y: player.y + bDIF[i].y,
-                                game: this,
-                                player: player,
-                                type: 'interact'
-                            });
+                            // Cooldown logic
+                            if ((Date.now() - player.joinedAt) >= this.damageCooldown) {
+                                // Hit the player
+                                playersHere.forEach(function(item) {
+                                    if (item) {
+                                        item.impactHealth(-damageDealt);
+                                    }
+                                });
+                            } else {
+                                player.impactHealth(-0.5);
+                            }
+                        } else {
+                            // If the player has a craftingwand in his hand, use it
+                            if (player.inventory[player.selectedBlock].block.item &&
+                                player.inventory[player.selectedBlock].block.texture_name == 'craftingwand'
+                            ) {
+                                // Positions of the blocks
+                                var positions = ({
+                                    up: [
+                                        [-3, -1],
+                                        [-3,  0],
+                                        [-3,  1],
+                                        [-2, -1],
+                                        [-2,  0],
+                                        [-2,  1],
+                                        [-1, -1],
+                                        [-1,  0],
+                                        [-1,  1]
+                                    ],
+                                    right: [
+                                        [-1,  1],
+                                        [-1,  2],
+                                        [-1,  3],
+                                        [0,   1],
+                                        [0,   2],
+                                        [0,   3],
+                                        [1,   1],
+                                        [1,   2],
+                                        [1,   3]
+                                    ],
+                                    down: [
+                                        [1, -1],
+                                        [1,  0],
+                                        [1,  1],
+                                        [2, -1],
+                                        [2,  0],
+                                        [2,  1],
+                                        [2, -1],
+                                        [2,  0],
+                                        [2,  1]
+                                    ],
+                                    left: [
+                                        [-1, -3],
+                                        [-1, -2],
+                                        [-1, -1],
+                                        [0,  -3],
+                                        [0,  -2],
+                                        [0,  -1],
+                                        [1,  -3],
+                                        [1,  -2],
+                                        [1,  -1]
+                                    ]
+                                })[modifier];
+
+                                // Get all the blocks
+                                var blocks = [];
+                                try {
+                                    positions.forEach(function(item) {
+                                        blocks.push(
+                                            this.map.raster[player.y + item[0]][player.x + item[1]].block
+                                        );
+                                    }.bind(this));
+                                } catch (e) {
+                                    console.log('Invalid crafting ' + e);
+                                }
+
+                                // Debugging
+                                if (this.verbose) {
+                                    console.log([
+                                        [blocks[0].texture_name, blocks[1].texture_name, blocks[2].texture_name].join('-'),
+                                        [blocks[3].texture_name, blocks[4].texture_name, blocks[5].texture_name].join('-'),
+                                        [blocks[6].texture_name, blocks[7].texture_name, blocks[8].texture_name].join('-')
+                                    ].join('\n'));
+                                }
+
+                                // Pass it to the craft method
+                                var craftingResult = Crafting.craft(blocks.map(function(item) {
+
+                                    var name = item.texture_name;
+                                    
+                                    if (name == 'dirt') {
+                                        name = '';
+                                    }
+
+                                    return name;
+
+                                }), player);
+
+                                if (craftingResult) {
+
+                                    // Reset all blocks in with dirt
+                                    positions.forEach(function(item) {
+                                        this.map.raster
+                                            [player.y + item[0]]
+                                            [player.x + item[1]].block = blockList.getBlock('dirt');
+
+                                        changedRC.xChanged.push(player.x + item[1]);
+                                        changedRC.yChanged.push(player.y + item[0]);
+                                    }.bind(this));
+
+                                    // Add the resource to the players inventory
+                                    player.changeResource({
+                                        block: craftingResult.block,
+                                        amount: craftingResult.amount
+                                    });
+
+                                }
+
+                            } else {
+
+                                // Interact with the block
+                                this.map.raster[player.y + bDIF.y][player.x + bDIF.x].block.onreact({
+                                    x: player.x + bDIF.x,
+                                    y: player.y + bDIF.y,
+                                    game: this,
+                                    player: player,
+                                    type: 'interact'
+                                });
+                            }
                         }
                     }
                 }
@@ -531,7 +619,10 @@ module.exports = function() {
         }
     };
 
+    // Render method
     this.render = undefined;
+
+    // Clear the map
     this.clearMap = function(width,height) {
         this.map.width = (width || this.map.width || 20);
         this.map.height = (height || this.map.height || 20);
@@ -553,6 +644,7 @@ module.exports = function() {
         }
     };
 
+    // Stores the map
     this.map = {
         width: 0,
         height: 0,
@@ -560,14 +652,18 @@ module.exports = function() {
         raster: []
     };
 
+    // Unused topographies list
     this.topographies = [];
 
+    // The damage cooldown before a player can be hit
     this.damageCooldown = 4000;
 
+    // Some stuff related to players
     this.players = [];
     this.playerLimit = 8;
     this.playersChanged = undefined;
 
+    // Return the player from a given key
     this.playerForKey = function(key) {
         return this.players.filter(function(player) {
             if (player) {
@@ -578,6 +674,7 @@ module.exports = function() {
         })[0];
     }
 
+    // Register a player to the game
     this.registerPlayer = function(name) {
 
         var slotFound = false;
@@ -612,6 +709,7 @@ module.exports = function() {
         }
     }
 
+    // Unregister a player from the game
     this.unregisterPlayer = function(name) {
 
         var playerRemoved = false;
@@ -639,5 +737,6 @@ module.exports = function() {
         }
     }
 
+    // Activates and deactivates console output
     this.verbose = false;
 }

@@ -115,7 +115,7 @@ function renderInventoryBlockView(data, inventoryInfo) {
 
     // Draw the texture
     inventoryViewDrawHandler.drawTexture(data.block.texture_id, 0, 0, function() {
-        var fillColor = (data.amount <= 3 ? 'rgba(231, 76, 60, 0.95)': 'rgba(255, 255, 255, 0.95)')
+        var fillColor = ((data.amount <= 3 && !data.block.item) ? 'rgba(231, 76, 60, 0.95)': 'rgba(255, 255, 255, 0.95)')
 
         // Draw the text over once the texture has finished
         inventoryViewDrawHandler.fillText(data.amount,

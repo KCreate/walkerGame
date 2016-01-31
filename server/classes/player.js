@@ -44,8 +44,8 @@ module.exports = function(key, id) {
     //Inventory
     this.inventory = [
         {
-            block: blockList.getBlock('sword'),
-            amount: 100
+            block: blockList.getBlock('craftingwand'),
+            amount: 1
         },
         {
             block: blockList.getBlock('wood'),
@@ -56,8 +56,8 @@ module.exports = function(key, id) {
             amount: 1
         },
         {
-            block: blockList.getBlock('tnt'),
-            amount: 1
+            block: blockList.getBlock('stone'),
+            amount: 80
         }
     ];
     this.selectedBlock = 0;

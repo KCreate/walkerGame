@@ -522,7 +522,7 @@ function renderInventoryBlockView(data, inventoryInfo) {
 
     // Draw the texture
     inventoryViewDrawHandler.drawTexture(data.block.texture_id, 0, 0, function() {
-        var fillColor = (data.amount <= 3 ? 'rgba(231, 76, 60, 0.95)': 'rgba(255, 255, 255, 0.95)')
+        var fillColor = ((data.amount <= 3 && !data.block.item) ? 'rgba(231, 76, 60, 0.95)': 'rgba(255, 255, 255, 0.95)')
 
         // Draw the text over once the texture has finished
         inventoryViewDrawHandler.fillText(data.amount,
@@ -665,10 +665,7 @@ var gameController = function(websocket) {
                 event.keyCode == 90 ||
                 event.keyCode == 71 ||
                 event.keyCode == 72 ||
-                event.keyCode == 74 ||
-
-                // E
-                event.keyCode == 69
+                event.keyCode == 74
             ) {
                 this.action(({
                     // WASD
@@ -678,13 +675,10 @@ var gameController = function(websocket) {
                     68: 'right',
 
                     // ZGHJ
-                    90: 'place_block:up',
-                    71: 'place_block:left',
-                    72: 'place_block:down',
-                    74: 'place_block:right',
-
-                    // E
-                    69: 'interact'
+                    90: 'interact:up',
+                    71: 'interact:left',
+                    72: 'interact:down',
+                    74: 'interact:right'
                 })[event.keyCode]);
             }
         }
@@ -772,7 +766,7 @@ var url = (function(){
     if (window.location.hash == '#dev') {
         return 'ws://localhost:4000';
     } else {
-        return 'ws://192.168.1.42:4000';
+        return 'ws://192.168.1.50:4000';
     }
 })();
 
