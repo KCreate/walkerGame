@@ -7,7 +7,7 @@ module.exports = function(key, id) {
     // Timing
     this.joinedAt = Date.now();
 
-    // Key and name
+    // Identification
     this.id = id;
     this.key = key;
     this.nickname = undefined;

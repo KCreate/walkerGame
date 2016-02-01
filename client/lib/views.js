@@ -57,7 +57,9 @@ function renderPlayerListNode(data) {
             );
         var keyNode = document.createElement('p');
             keyNode.appendChild(
-                document.createTextNode(data.key)
+                document.createTextNode(
+                    data.key
+                )
             );
 
             // Golden text for admins

@@ -21,6 +21,7 @@
     "gulp-uglify": "^1.5.1"
   },
   "dependencies": {
+    "cookies": "^0.5.1",
     "express": "^4.13.3",
     "nodejs-websocket": "^1.5.0"
   }

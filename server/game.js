@@ -606,16 +606,18 @@ module.exports = function() {
         }
 
         // Remove duplicates from the changedRC object
-        changedRC.xChanged = changedRC.xChanged.filter(function(item, index, self){
+        changedRC.xChanged = changedRC.xChanged.filter(function(item, index, self) {
             return self.indexOf(item) === index;
         });
-        changedRC.yChanged = changedRC.yChanged.filter(function(item, index, self){
+        changedRC.yChanged = changedRC.yChanged.filter(function(item, index, self) {
             return self.indexOf(item) === index;
         });
 
         // Notify the render method
-        if (this.render) {
-            this.render(this, changedRC);
+        if (changedRC.xChanged.length > 0 || changedRC.yChanged.length) {
+            if (this.render) {
+                this.render(this, changedRC);
+            }
         }
     };
 
@@ -645,19 +647,33 @@ module.exports = function() {
     };
 
     // Load in a new map
-    this.loadMap = function(newMap) {
+    this.loadMap = function(gameSave) {
 
         // Reset the map beforehand
-        this.clearMap(newMap.map.width, newMap.map.height, true);
+        this.clearMap(gameSave.map.width, gameSave.map.height, true);
 
         // Overwrite each block
         for (var iy=0; iy < this.map.height; iy++) {
             for (var ix=0; ix < this.map.width; ix++) {
                 this.map.raster[iy][ix].block = blockList.getBlock(
-                    newMap.map.raster[iy][ix].block.texture_name
+                    gameSave.map.raster[iy][ix].block.texture_name
                 );
             }
         }
+
+        // Iterate over the saved players
+        gameSave.players.forEach(function(savedPlayer) {
+
+            // Swap the player states
+            this.swapPlayerSave(savedPlayer, this.playerForKey(savedPlayer.key));
+
+            // Update the save file
+            this.savePlayerState(this.playerForKey(savedPlayer.key));
+
+            // Call the onchange handler
+            this.playerForKey(savedPlayer.key).onchange(this.playerForKey(savedPlayer.key));
+
+        }.bind(this));
 
         // Render
         if (this.render) {
@@ -702,6 +718,13 @@ module.exports = function() {
         for (var i=0; (i<this.playerLimit && !slotFound); i++) {
             if (!this.players[i] && !slotFound) {
                 this.players[i] = new protoPlayer(name, i);
+
+                // Check if there is a save file, swap if it exists
+                var saveFile = this.retrievePlayerState(name);
+                if (saveFile) {
+                    this.swapPlayerSave(saveFile, this.players[i]);
+                }
+
                 this.players[i].onchange = function(player) {
                     if (this.playersChanged) {
                         this.playersChanged(this.players);
@@ -709,6 +732,8 @@ module.exports = function() {
                 }.bind(this);
 
                 slotFound = true;
+
+                console.log(this.players[i]);
 
                 if (this.verbose) {
                     console.log('User connected to game controller with id '+name);
@@ -737,6 +762,11 @@ module.exports = function() {
         for (var i=0; (i<this.playerLimit && !playerRemoved); i++) {
             if (this.players[i] != undefined) {
                 if (this.players[i].key == name && !playerRemoved) {
+
+                    // Save the state of the player as a file
+                    this.savePlayerState(this.players[i]);
+
+                    // Remove it from memory
                     this.players[i] = undefined;
                     playerRemoved = true;
 
@@ -756,6 +786,59 @@ module.exports = function() {
                 this.playersChanged(this.players);
             }
         }
+    }
+
+    // Save the state of the player to the players directory
+    this.savePlayerState = function(player) {
+        fs.writeFileSync(
+            './server/players/'+player.key+'.wgplayer',
+            JSON.stringify(player),
+            'utf8'
+        );
+    }
+
+    // Load the state of a player, returns undefined if not found
+    this.retrievePlayerState = function(key) {
+        // Check if there is a wgplayer file for the current player
+        var possibleSaveFileLocation = './server/players/'+key+'.wgplayer';
+        if (fs.existsSync(
+            './server/players/'+key+'.wgplayer'
+        )) {
+
+            // A save file exists for the player, try to restore
+            var saveFile = fs.readFileSync(
+                possibleSaveFileLocation,
+                'utf8'
+            );
+            saveFile = JSON.parse(saveFile);
+
+            return saveFile;
+        } else {
+            return undefined;
+        }
+    }
+
+    // Swap the contents of a player save with the one currently in memory
+    this.swapPlayerSave = function(playerSave, player) {
+
+        // Simply copy
+        player.x = playerSave.x;
+        player.y = playerSave.y;
+        player.nickname = playerSave.nickname;
+        player.admin = playerSave.admin;
+        player.health = playerSave.health;
+        player.selectedBlock = playerSave.selectedBlock;
+
+        // We need to carry the inventory over differently, because of the blockactions
+        player.inventory = [];
+        playerSave.inventory.forEach(function(item) {
+            player.inventory.push({
+                block: blockList.getBlock(
+                    item.block.texture_name
+                ),
+                amount: item.amount
+            });
+        }.bind(this));
     }
 
     // Activates and deactivates console output

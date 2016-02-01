@@ -551,7 +551,7 @@ module.exports = function() {
 
             Requires admin permissions
 
-            Saves the current map into the ./client/worlds/ folder
+            Saves the current map into the ./server/worlds/ folder
         */
         this.chat.commands.regCommand('saveworld', function(data, player) {
             // Error checking
@@ -578,14 +578,14 @@ module.exports = function() {
             if (player.admin) {
 
                 // Write the file
-                var filename = "./client/worlds/" + arguments[0].arguments.split('.').join('') + ".wgmap";
+                var filename = "./server/worlds/" + arguments[0].arguments.split('.').join('') + ".wgmap";
                 fs.writeFileSync(filename, JSON.stringify(this.game), 'utf8');
 
                 // Successfully saved the file
                 return [true, {
                     message: this.templates('success', {
                         command: data.command,
-                        message: player.name() + ' successfully saved the world with name: ' + arguments
+                        message: player.name() + ' successfully saved the world with name: ' + data.arguments
                     }, player)
                 }];
 
@@ -638,18 +638,20 @@ module.exports = function() {
             if (player.admin) {
 
                 // Load the file
-                var filename = "./client/worlds/" + arguments[0].arguments.split('.').join('') + ".wgmap";
+                var filename = "./server/worlds/" + arguments[0].arguments.split('.').join('') + ".wgmap";
 
+                // Load the save
                 var file = fs.readFileSync(filename, 'utf8');
                     file = JSON.parse(file);
 
+                // Load a new map
                 this.game.loadMap(file);
 
                 // Successfully saved the file
                 return [true, {
                     message: this.templates('success', {
                         command: data.command,
-                        message: player.name() + ' successfully loaded the world with name: ' + arguments.arguments
+                        message: player.name() + ' successfully loaded the world with name: ' + data.arguments
                     }, player)
                 }];
 

@@ -35,8 +35,9 @@ node_modules
 # Compiled app
 client/app.js
 
-# worlds
-client/worlds
+# save files
+server/worlds
+server/players
 
 # compiled css
 client/res/css
