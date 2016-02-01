@@ -623,7 +623,7 @@ module.exports = function() {
     this.render = undefined;
 
     // Clear the map
-    this.clearMap = function(width,height) {
+    this.clearMap = function(width,height,norender) {
         this.map.width = (width || this.map.width || 20);
         this.map.height = (height || this.map.height || 20);
         this.map.raster = new Array(this.map.width);
@@ -639,10 +639,31 @@ module.exports = function() {
         }
 
         // Notify the render method
-        if (this.render) {
+        if (this.render && !norender) {
             this.render(this, false);
         }
     };
+
+    // Load in a new map
+    this.loadMap = function(newMap) {
+
+        // Reset the map beforehand
+        this.clearMap(newMap.map.width, newMap.map.height, true);
+
+        // Overwrite each block
+        for (var iy=0; iy < this.map.height; iy++) {
+            for (var ix=0; ix < this.map.width; ix++) {
+                this.map.raster[iy][ix].block = blockList.getBlock(
+                    newMap.map.raster[iy][ix].block.texture_name
+                );
+            }
+        }
+
+        // Render
+        if (this.render) {
+            this.render(this, false);
+        }
+    }
 
     // Stores the map
     this.map = {

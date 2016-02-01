@@ -44,6 +44,26 @@ module.exports = function(blockList) {
                 'wood', '', ''
             ],
             options: {}
+        },
+        {
+            result: this.blockList.getBlock('rifle'),
+            amount: 1,
+            requirements: [
+                '', 'goldblock', 'ironbar',
+                'stone', 'stone', 'stone',
+                'wood', 'stone', ''
+            ],
+            options: {}
+        },
+        {
+            result: this.blockList.getBlock('ironbar'),
+            amount: 4,
+            requirements: [
+                'stone', '', 'stone',
+                'stone', 'stone', 'stone',
+                'stone', '', 'stone'
+            ],
+            options: {}
         }
     ];
 

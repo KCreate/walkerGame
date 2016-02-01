@@ -1,5 +1,6 @@
 var Sha1            = require('./classes/sha1.js'); // Used for password hashing
 var blockList       = new (require('./classes/blocklist.js'))()
+var fs              = require('fs');
 
 module.exports = function() {
 
@@ -120,6 +121,8 @@ module.exports = function() {
             /clearmap
 
             Requires admin permissions
+
+            Clears the map and sets all blocks to dirt
         */
         this.chat.commands.regCommand('clearmap', function(data, player) {
             // Error checking
@@ -155,6 +158,8 @@ module.exports = function() {
             /nick
 
             Name can't be longer than 20 characters, and all whitespaces will be removed
+
+            Gives a player a nickname that will be visible in the chat and the playerlist
         */
         this.chat.commands.regCommand('nick', function(data, player) {
             // Error checking
@@ -203,6 +208,8 @@ module.exports = function() {
             /admin
 
             Requires a password
+
+            Toggles a players admin permissions
         */
         this.chat.commands.regCommand('admin', function(data, player) {
             // Error checking
@@ -244,6 +251,8 @@ module.exports = function() {
             /give
 
             Requires admin permissions
+
+            Gives the player a defined ammount of a resource
         */
         this.chat.commands.regCommand('give', function(data, player) {
             // Error checking
@@ -308,6 +317,8 @@ module.exports = function() {
             /giveplayer
 
             Requires admin permissions
+
+            Same as the give command but to another player
         */
         this.chat.commands.regCommand('giveplayer', function(data, player) {
             // Error checking
@@ -385,6 +396,8 @@ module.exports = function() {
             /say
 
             Requires admin permission
+
+            Writes to the server console using the SERVER player
         */
         this.chat.commands.regCommand('say', function(data, player) {
             // Error checking
@@ -430,6 +443,8 @@ module.exports = function() {
             /tpa
 
             Requires admin permissions
+
+            Teleport to a given position
         */
         this.chat.commands.regCommand('tpa', function(data, player) {
             // Error checking
@@ -520,6 +535,129 @@ module.exports = function() {
                     message: this.templates('misc_error', {
                         command: data.command,
                         message: 'These coordinates are out of map'
+                    }, player)
+                }];
+            } else {
+                return [false, {
+                    message: this.templates('missing_permissions', {
+                        command: data.command
+                    }, player)
+                }];
+            }
+        }.bind(this));
+
+        /*
+            /saveworld
+
+            Requires admin permissions
+
+            Saves the current map into the ./client/worlds/ folder
+        */
+        this.chat.commands.regCommand('saveworld', function(data, player) {
+            // Error checking
+            if (data.err) {
+                console.log(data.err);
+                return [false, {
+                    message: this.templates('server_error', {
+                        command: data.command
+                    }, player)
+                }];
+            }
+
+            // Data validation
+            if (data.arguments === '') {
+                return [false, {
+                    message: this.templates('misc_error', {
+                        command: data.command,
+                        message: 'This command requires one argument: savename'
+                    }, player)
+                }];
+            }
+
+            // Main action
+            if (player.admin) {
+
+                // Write the file
+                var filename = "./client/worlds/" + arguments[0].arguments.split('.').join('') + ".wgmap";
+                fs.writeFileSync(filename, JSON.stringify(this.game), 'utf8');
+
+                // Successfully saved the file
+                return [true, {
+                    message: this.templates('success', {
+                        command: data.command,
+                        message: player.name() + ' successfully saved the world with name: ' + arguments
+                    }, player)
+                }];
+
+                // Response if the savename already exists
+                return [false, {
+                    message: this.templates('misc_error', {
+                        command: data.command,
+                        message: 'A world with this name already exists'
+                    }, player)
+                }];
+            } else {
+                return [false, {
+                    message: this.templates('missing_permissions', {
+                        command: data.command
+                    }, player)
+                }];
+            }
+        }.bind(this));
+
+        /*
+            /loadworld
+
+            Requires admin permissions
+
+            Overwrites all current progress and loads the savedata from another file into the game
+            Players may loose their inventory
+        */
+        this.chat.commands.regCommand('loadworld', function(data, player) {
+            // Error checking
+            if (data.err) {
+                console.log(data.err);
+                return [false, {
+                    message: this.templates('server_error', {
+                        command: data.command
+                    }, player)
+                }];
+            }
+
+            // Data validation
+            if (data.arguments === '') {
+                return [false, {
+                    message: this.templates('misc_error', {
+                        command: data.command,
+                        message: 'This command requires one argument: savename'
+                    }, player)
+                }];
+            }
+
+            // Main action
+            if (player.admin) {
+
+                // Load the file
+                var filename = "./client/worlds/" + arguments[0].arguments.split('.').join('') + ".wgmap";
+
+                var file = fs.readFileSync(filename, 'utf8');
+                    file = JSON.parse(file);
+
+                this.game.loadMap(file);
+
+                // Successfully saved the file
+                return [true, {
+                    message: this.templates('success', {
+                        command: data.command,
+                        message: player.name() + ' successfully loaded the world with name: ' + arguments.arguments
+                    }, player)
+                }];
+
+                // Response if the savename already exists
+                return [false, {
+                    message: this.templates('misc_error', {
+                        command: data.command,
+                        message: 'A world with this name already exists'
                     }, player)
                 }];
             } else {

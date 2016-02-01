@@ -219,7 +219,7 @@ var url = (function(){
     if (window.location.hash == '#dev') {
         return 'ws://localhost:4000';
     } else {
-        return 'ws://192.168.1.50:4000';
+        return 'ws://172.20.10.3:4000';
     }
 })();
 
