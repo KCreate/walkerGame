@@ -670,6 +670,36 @@ module.exports = function() {
                 }];
             }
         }.bind(this));
+
+        /*
+            /help
+
+            Returns a list of all available commands
+        */
+        this.chat.commands.regCommand('help', function(data, player) {
+            // Error checking
+            if (data.err) {
+                console.log(data.err);
+                return [false, {
+                    message: this.templates('server_error', {
+                        command: data.command
+                    }, player)
+                }];
+            }
+
+            // Get a list of all commands
+            var list = Object.keys(
+                this.chat.commands.availableCommands
+            ).join(', ');
+
+            // Main action
+            return [true, {
+                message: this.templates('success', {
+                    command: data.command,
+                    message: 'Available commands: \n' + list
+                }, player)
+            }];
+        }.bind(this));
     }
 
     // Default response message templates

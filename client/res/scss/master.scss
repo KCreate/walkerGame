@@ -164,27 +164,33 @@ body {
                         float: left;
                         text-align: left;
                         width: 70px;
+                        color: #f1c40f;
                     }
 
                     .chat-author {
                         float: right;
                         text-align: right;
-                        width: calc(100% - 70px);
-                    }
+                        width: 70px;
 
-                    .chat-author-admin {
-                        float: right;
-                        text-align: right;
-                        width: calc(100% - 70px);
-                        color: #f1c40f;
+                        &.admin {
+                            float: right;
+                            text-align: right;
+                            color: #f1c40f;
+                        }
+
+                        &:hover {
+                            width: calc(100% - 70px);
+                        }
+
+                        transition: width 300ms ease-in-out;
                     }
                 }
 
                 .chat-message {
                     margin: 0;
                     color: #fafbfb;
-
-                    word-wrap: break-word;
+                    width: 100%;
+                    white-space: normal;
                 }
             }
 

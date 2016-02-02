@@ -422,7 +422,7 @@ function renderChatNode(data) {
             messagenode.className  = 'chat-message';
             messagenode.appendChild(document.createTextNode(data.message));
         var authornode = document.createElement('span');
-            authornode.className  = (data.author.admin ? 'chat-author-admin' : 'chat-author');
+            authornode.className  = (data.author.admin ? 'chat-author admin' : 'chat-author');
             authornode.appendChild(document.createTextNode((data.author.nickname || data.author.key)));
 
         metaContainer.appendChild(timenode);
