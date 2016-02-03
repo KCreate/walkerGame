@@ -3,7 +3,6 @@ var WebSocket           = require('nodejs-websocket');
 var express             = require('express');
 var app                 = express();
 var fs                  = require('fs');
-var Cookies             = require('cookies');
 var Sha1                = require('./classes/sha1.js');
 
 // Game dependencies
