@@ -10,6 +10,7 @@ module.exports = function(key, id) {
     // Identification
     this.id = id;
     this.key = key;
+    this.permaKey = undefined;
     this.nickname = undefined;
     this.name = function() {
         return (this.nickname || this.key || this.id);

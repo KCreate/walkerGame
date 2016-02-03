@@ -77,22 +77,23 @@ Chat.on('playerInfoChanged', function() {
     Game Controller
 */
 
-// SessionsID's used to identify users over different websocket connections
-app.use(express.static('./client', {
-    setHeaders: function(res, path) {
-        var req = res.req;
+// hashed ip adress used to identify players over different websocket connections
+app.use(function(req, res, next) {
+	// Get the remote address
+	var hashedKey = Sha1.hash((
+		req.headers["X-Forwarded-For"] ||
+		req.headers["x-forwarded-for"] ||
+		req.client.remoteAddress
+	));
 
-        // Get the remote address
-        var hashedKey = Sha1.hash((
-            req.headers["X-Forwarded-For"] ||
-            req.headers["x-forwarded-for"] ||
-            req.client.remoteAddress
-        ));
+	// Response
+	res.cookie('sessionID', hashedKey);
 
-        // Response
-        res.cookie('sessionID', hashedKey);
-    }
-}));
+	// Call the next middleware
+	next();
+});
+
+app.use(express.static('./client'));
 
 app.listen(ControlPort, function() {
     console.log('Control server ready at port ' + ControlPort);
@@ -102,7 +103,10 @@ app.listen(ControlPort, function() {
 var GameSocket = WebSocket.createServer(function (conn) {
     // Extract a permaKey if it's set
     var cookies = conn.headers.cookie;
-    var permaKey = cookies.split('sessionID=')[1];
+	var permaKey = undefined;
+	if (cookies) {
+		permaKey = cookies.split('sessionID=')[1];
+	}
 
     if (!Game.registerPlayer((permaKey || conn.key))) {
         secureClose(conn);
@@ -171,7 +175,9 @@ Game.render = function(game, changedRC) {
     GameSocket.connections.forEach(function(conn, index) {
         // Extract a permaKey if it's set
         var cookies = conn.headers.cookie;
-        var permaKey = cookies.split('sessionID=')[1];
+		if (cookies) {
+			var permaKey = cookies.split('sessionID=')[1];
+		}
 
         try {
             conn.sendText(
@@ -201,11 +207,20 @@ Game.playersChanged = function(players) {
                 GameSocket.connections.forEach(function(conn, index) {
                     // Extract a permaKey if it's set
                     var cookies = conn.headers.cookie;
-                    var permaKey = cookies.split('sessionID=')[1];
+					var permaKey = undefined;
+					if (cookies) {
+						permaKey = cookies.split('sessionID=')[1];
+					}
 
-                    if ((permaKey || conn.key) === player.key) {
-                        conn.close();
-                    }
+					// Check if the player has a permaKey
+					if (
+						permaKey == player.permaKey ||
+						conn.key == player.key ||
+						permaKey == player.key ||
+						conn.key == player.permaKey
+					) {
+						conn.close();
+					}
                 });
             }
         }

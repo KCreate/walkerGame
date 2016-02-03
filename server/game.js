@@ -733,8 +733,6 @@ module.exports = function() {
 
                 slotFound = true;
 
-                console.log(this.players[i]);
-
                 if (this.verbose) {
                     console.log('User connected to game controller with id '+name);
                 }
@@ -802,7 +800,7 @@ module.exports = function() {
         // Check if there is a wgplayer file for the current player
         var possibleSaveFileLocation = './server/players/'+key+'.wgplayer';
         if (fs.existsSync(
-            './server/players/'+key+'.wgplayer'
+            possibleSaveFileLocation
         )) {
 
             // A save file exists for the player, try to restore
