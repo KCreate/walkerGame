@@ -714,6 +714,21 @@ module.exports = function() {
     // Register a player to the game
     this.registerPlayer = function(name) {
 
+        // Check if no player with the same name already exists
+        var alreadyRegistered = this.players.map(function(player) {
+            if (player) {
+                return (player.permaKey == name ||
+                        player.key == name);
+            } else {
+                return false;
+            }
+
+        }).indexOf(true) != -1;
+
+        if (alreadyRegistered) {
+            return false;
+        }
+
         var slotFound = false;
         for (var i=0; (i<this.playerLimit && !slotFound); i++) {
             if (!this.players[i] && !slotFound) {
@@ -837,6 +852,25 @@ module.exports = function() {
                 amount: item.amount
             });
         }.bind(this));
+    }
+
+    // Delete the save file of a specific player
+    this.deletePlayerSave = function(key) {
+        var location = "./server/players/";
+        var ending = "wgplayer";
+        var path = location + key + "." + ending;
+
+        if (
+            fs.existsSync(path)
+        ) {
+            if (this.verbose) {
+                console.log('deleting player save file: ' + key);
+            }
+            fs.unlinkSync(path);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     // Activates and deactivates console output

@@ -59,6 +59,10 @@ module.exports = function(key, id) {
         {
             block: blockList.getBlock('stone'),
             amount: 80
+        },
+        {
+            block: blockList.getBlock('sword'),
+            amount: 1
         }
     ];
     this.selectedBlock = 0;

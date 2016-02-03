@@ -12,34 +12,42 @@ var Game                = new (require('./game.js'))();
 var CommandsController  = new (require('./commandscontroller.js'))();
 
 // Some constants
-var ControlPort         = 4001;
-var GamePort            = 4000;
+var ControlPort         = 7217;
+var GamePort            = 7218;
 var DefaultMapSize      = 15;
 
 // Delete all player files
-var rmDir = function(dirPath) {
-	try {
-		var files = fs.readdirSync(dirPath);
-	} catch (e) {
-		return;
+var rmDir = function(dirPath, removeSelf) {
+    if (removeSelf === undefined) {
+		removeSelf = true;
 	}
-	if (files.length > 0)
-		for (var i = 0; i < files.length; i++) {
-			var filePath = dirPath + '/' + files[i];
-			if (fs.statSync(filePath).isFile())
+    try {
+        var files = fs.readdirSync(dirPath);
+    } catch (e) {
+        return;
+    }
+    if (files.length > 0)
+        for (var i = 0; i < files.length; i++) {
+            var filePath = dirPath + '/' + files[i];
+            if (fs.statSync(filePath).isFile()) {
 				fs.unlinkSync(filePath);
-			else
+			} else {
 				rmDir(filePath);
-		}
-	fs.rmdirSync(dirPath);
+			}
+        }
+    if (removeSelf) {
+		fs.rmdirSync(dirPath);
+	}
 };
-rmDir('./server/players/');
-if (!fs.existsSync('./server/players/')){
+rmDir('./server/players/', false);
+
+// Create the players directory if it doesn't exist yet
+if (!fs.existsSync('./server/players/')) {
     fs.mkdirSync('./server/players/');
 }
 
 // Create the world directory if it doesn't exist yet
-if (!fs.existsSync('./server/worlds/')){
+if (!fs.existsSync('./server/worlds/')) {
     fs.mkdirSync('./server/worlds/');
 }
 
@@ -85,6 +93,7 @@ app.use(function(req, res, next) {
 		req.headers["x-forwarded-for"] ||
 		req.client.remoteAddress
 	));
+	hashedKey = hashedKey.split('').slice(0, Math.floor(hashedKey.length / 2)).join('');
 
 	// Response
 	res.cookie('sessionID', hashedKey);
@@ -110,6 +119,7 @@ var GameSocket = WebSocket.createServer(function (conn) {
 
     if (!Game.registerPlayer((permaKey || conn.key))) {
         secureClose(conn);
+		return false;
     }
 
     // Send down the whole chat
@@ -203,7 +213,10 @@ Game.playersChanged = function(players) {
     // Kick and close all connections of dead players
     players.forEach(function(player) {
         if (player) {
+
+			// Kick players with 0 health
             if (player.health === 0) {
+				// Notify other sockets
                 GameSocket.connections.forEach(function(conn, index) {
                     // Extract a permaKey if it's set
                     var cookies = conn.headers.cookie;
@@ -222,6 +235,9 @@ Game.playersChanged = function(players) {
 						conn.close();
 					}
                 });
+
+				// Delete the playerSaveFile
+				Game.deletePlayerSave((player.permaKey || player.key));
             }
         }
     });

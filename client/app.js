@@ -770,9 +770,9 @@ var inventoryViewController = function(websocket) {
 */
 var url = (function(){
     if (window.location.hash == '#dev') {
-        return 'ws://localhost:4000';
+        return 'ws://localhost:7218';
     } else {
-        return 'ws://192.168.1.39:4000';
+        return 'ws://192.168.1.39:7218';
     }
 })();
 
