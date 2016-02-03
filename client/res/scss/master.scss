@@ -103,7 +103,7 @@ body {
                     height: 100%;
                     float: left;
 
-                    font-size: 0.8em;
+                    font-size: 0.7em;
 
                     canvas {
                         float: left;
@@ -115,6 +115,8 @@ body {
                     .playerListAdmin {
                         color: #f1c40f;
                     }
+
+                    transition: width 300ms ease-in-out;
                 }
 
                 .playerstatus {

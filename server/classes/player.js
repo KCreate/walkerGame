@@ -53,16 +53,8 @@ module.exports = function(key, id) {
             amount: 80
         },
         {
-            block: blockList.getBlock('goldblock'),
-            amount: 1
-        },
-        {
             block: blockList.getBlock('stone'),
-            amount: 80
-        },
-        {
-            block: blockList.getBlock('sword'),
-            amount: 1
+            amount: 400
         }
     ];
     this.selectedBlock = 0;

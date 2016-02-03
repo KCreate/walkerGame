@@ -116,23 +116,49 @@ var gameController = function(websocket) {
 
                 // ZGHJ
                 event.keyCode == 90 ||
+                event.keyCode == 38 ||
                 event.keyCode == 71 ||
+                event.keyCode == 37 ||
                 event.keyCode == 72 ||
-                event.keyCode == 74
-            ) {
-                this.action(({
-                    // WASD
-                    87: 'up',
-                    65: 'left',
-                    83: 'down',
-                    68: 'right',
+                event.keyCode == 40 ||
+                event.keyCode == 74 ||
+                event.keyCode == 39 ||
 
-                    // ZGHJ
-                    90: 'interact:up',
-                    71: 'interact:left',
-                    72: 'interact:down',
-                    74: 'interact:right'
-                })[event.keyCode]);
+                // 1-9
+                (event.keyCode >= 49 && event.keyCode <= 57)
+            ) {
+
+                if (event.keyCode >= 49 && event.keyCode <= 57) {
+                    var block = inventoryViewController.inventoryView.children[
+                        (String.fromCharCode(event.keyCode)*1)-1
+                    ];
+
+                    if (block) {
+                        // we only want the block name
+                        var id = block.id.split('inventoryView-').join('');
+
+                        inventoryViewController.select_block(id);
+                    }
+
+                } else {
+                    this.action(({
+                        // WASD
+                        87: 'up',
+                        65: 'left',
+                        83: 'down',
+                        68: 'right',
+
+                        // ZGHJ
+                        90: 'interact:up',
+                        38: 'interact:up',
+                        71: 'interact:left',
+                        37: 'interact:left',
+                        72: 'interact:down',
+                        40: 'interact:down',
+                        74: 'interact:right',
+                        39: 'interact:right'
+                    })[event.keyCode]);
+                }
             }
         }
     }.bind(this)
@@ -192,22 +218,27 @@ var inventoryViewController = function(websocket) {
                             // we only want the block name
                             id = id.split('inventoryView-').join('');
 
-                            websocket.send(JSON.stringify({
-                                actionName: 'select_block:'+id,
-                                key: gameController.socketKey,
-                                type: 'action'
-                            }));
+                            this.select_block(id);
                         }
 
                         // Add it to the DOM
                         this.inventoryView.appendChild(
                             inventoryBlockView
                         );
-                    });
+                    }.bind(this));
                 }
             }
-        });
+        }.bind(this));
     }
+
+    // Notify the server of the block change
+    this.select_block = function(id) {
+        websocket.send(JSON.stringify({
+            actionName: 'select_block:'+id,
+            key: gameController.socketKey,
+            type: 'action'
+        }));
+    };
 }
 
 /*

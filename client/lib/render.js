@@ -35,7 +35,8 @@ function GCRender(data) {
     for (var x=0;x<data.map.width;x++) {
 
         if (data.changedRC) {
-            if (data.changedRC.xChanged.indexOf(x) < 0) {
+            if (!(
+                data.changedRC.xChanged.indexOf(x) != -1)) {
                 continue;
             }
         }
@@ -51,7 +52,8 @@ function GCRender(data) {
         for (var y=0;y<data.map.height;y++) {
 
             if (data.changedRC) {
-                if (data.changedRC.yChanged.indexOf(y) < 0) {
+                if (!(
+                    data.changedRC.yChanged.indexOf(y) != -1)) {
                     continue;
                 }
             }
@@ -69,8 +71,10 @@ function GCRender(data) {
                 If there are any players, draw their texture
                 If not, check the map what the ground texture should be
             */
+            var playerAtThisPos = undefined;
             if (validPlayersY.length > 0) {
-                texture = validPlayersY.last().id;
+                playerAtThisPos = validPlayersY.last();
+                texture = playerAtThisPos.id;
             } else {
                 texture = data.map.raster[y][x].block.texture_id;
             }
@@ -87,6 +91,19 @@ function GCRender(data) {
                     x,
                     y
                 );
+
+                // Several drawing related to the player
+                if (playerAtThisPos) {
+
+                    // Draw the item in a players hand
+                    if (playerAtThisPos.inventory[playerAtThisPos.selectedBlock].amount > 0) {
+                        drawHandler.drawItem(
+                            playerAtThisPos.inventory[playerAtThisPos.selectedBlock].block.texture_id,
+                            x,
+                            y
+                        );
+                    }
+                }
             }
 
             texture = undefined;
@@ -106,11 +123,12 @@ var protoDrawHandler = function() {
         this.spritesheet.onload = function() {
             if (this.drawingQueue.length > 0) {
                 this.drawingQueue.forEach(function(item, index) {
-                    this.drawTexture(
+                    this[item.type](
                         item.id,
                         item.dx,
                         item.dy,
-                        item.callback
+                        item.callback,
+                        item.type
                     );
                 }.bind(this));
                 this.drawingQueue = [];
@@ -134,6 +152,60 @@ var protoDrawHandler = function() {
         }
     }
 
+    this.drawItem = function(id, dx, dy, w, h, callback) {
+        if (
+            this.spritesheet.naturalWidth === 0 ||
+            this.spritesheet.naturalHeight === 0) {
+
+            this.drawingQueue.push({
+                id: id,
+                dx: dx,
+                dy: dy,
+                w: w,
+                h: h,
+                callback: callback,
+                type: 'drawItem'
+            });
+
+            return false;
+        }
+
+        if (id === undefined) {
+            id = 36;
+        }
+
+        if (typeof id === 'object') {
+            id = id.texture_id;
+        }
+
+        // Raise the coordinates
+        var CORD = GCRaiseCoord(
+            id,
+            (this.spritesheet.width / this.mapData.tileDimension)
+        );
+
+        // Draw to the canvas
+        this.Context.context.save();
+        this.Context.context.globalAlpha = 1;
+        this.Context.context.drawImage(
+            this.spritesheet,
+            CORD.x * this.mapData.tileDimension,
+            CORD.y * this.mapData.tileDimension,
+            this.mapData.tileDimension,
+            this.mapData.tileDimension,
+            dx*this.mapData.pTileWidth + this.mapData.pTileWidth * 0.3,
+            dy*this.mapData.pTileHeight + this.mapData.pTileHeight * 0.3,
+            this.mapData.pTileWidth * 0.7,
+            this.mapData.pTileHeight * 0.7
+        );
+        this.Context.context.restore();
+
+        // Notify the callback if it was passed
+        if (callback) {
+            callback(this.Context.context);
+        }
+    }
+
     this.drawTexture = function(id, dx, dy, callback) {
         if (
             this.spritesheet.naturalWidth === 0 ||
@@ -143,7 +215,8 @@ var protoDrawHandler = function() {
                 id: id,
                 dx: dx,
                 dy: dy,
-                callback: callback
+                callback: callback,
+                type: 'drawTexture'
             });
 
             return false;

@@ -93,7 +93,7 @@ app.use(function(req, res, next) {
 		req.headers["x-forwarded-for"] ||
 		req.client.remoteAddress
 	));
-	hashedKey = hashedKey.split('').slice(0, Math.floor(hashedKey.length / 2)).join('');
+    hashedKey = hashedKey.split('').slice(0, Math.floor(hashedKey.length / 2)).join('');
 
 	// Response
 	res.cookie('sessionID', hashedKey);
@@ -119,7 +119,6 @@ var GameSocket = WebSocket.createServer(function (conn) {
 
     if (!Game.registerPlayer((permaKey || conn.key))) {
         secureClose(conn);
-		return false;
     }
 
     // Send down the whole chat
@@ -210,12 +209,23 @@ Game.render = function(game, changedRC) {
 
 // Notify sockets that something changed reagarding players
 Game.playersChanged = function(players) {
+
+    var changedRC = {
+        xChanged: [],
+        yChanged: []
+    };
+
     // Kick and close all connections of dead players
     players.forEach(function(player) {
         if (player) {
 
+            // Update changedRC
+            changedRC.xChanged.push(player.x);
+            changedRC.yChanged.push(player.y);
+
 			// Kick players with 0 health
             if (player.health === 0) {
+
 				// Notify other sockets
                 GameSocket.connections.forEach(function(conn, index) {
                     // Extract a permaKey if it's set
@@ -242,6 +252,7 @@ Game.playersChanged = function(players) {
         }
     });
 
+    Game.render(Game, changedRC);
     Chat.fireEvent('playerInfoChanged');
 }
 

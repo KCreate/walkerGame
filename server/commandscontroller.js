@@ -67,7 +67,7 @@ module.exports = function() {
                 Data Validation
                 24 is the default length of a websocket connection key
             */
-            if (data.arguments == '' || data.arguments.length != 24) {
+            if (data.arguments == '') {
                 return [false, {
                     message: this.templates('misc_error', {
                         command: data.command,
@@ -82,6 +82,7 @@ module.exports = function() {
                 this.websocket.connections.forEach(function(conn) {
 
                     // Check if the keys are equal
+                    console.log(conn.key, data.arguments);
                     if (conn.key === data.arguments) {
 
                         // Only kick, if the player isn't an admin
@@ -424,7 +425,7 @@ module.exports = function() {
             if (player.admin) {
 
                 // Write as server
-                this.chat.serverWrite(JSON.stringify(data.arguments));
+                this.chat.serverWrite(JSON.stringify(data.arguments).split('"').join(''));
 
                 return [true, {
                     message: false

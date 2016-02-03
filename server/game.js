@@ -45,13 +45,11 @@ module.exports = function() {
             return false;
         }
 
-        if (modifier) {
-            if (this.verbose) {
-                console.log(player.name() + " started action: " + control + " with modifier: " + modifier);
-            }
-        } else {
-            if (this.verbose) {
-                console.log(player.name() + " started action: " + control);
+        if (this.verbose) {
+            if (modifier) {
+                console.log(player.name() + " started action: <" + control + "> with modifier: <" + modifier + ">");
+            } else {
+                console.log(player.name() + " started action: <" + control + ">");
             }
         }
 
@@ -397,6 +395,7 @@ module.exports = function() {
                                     }.bind(this));
                                 } catch (e) {
                                     console.log('Invalid crafting ' + e);
+                                    return false;
                                 }
 
                                 // Debugging
@@ -664,15 +663,18 @@ module.exports = function() {
         // Iterate over the saved players
         gameSave.players.forEach(function(savedPlayer) {
 
-            // Swap the player states
-            this.swapPlayerSave(savedPlayer, this.playerForKey(savedPlayer.key));
+            // Check if the savedplayer is in the current game
+            var player = this.playerForKey(savedPlayer.key);
+            if (player) {
+                // Swap the player states
+                player = this.swapPlayerSave(savedPlayer, player);
 
-            // Update the save file
-            this.savePlayerState(this.playerForKey(savedPlayer.key));
+                // Update the save file
+                this.savePlayerState(player);
 
-            // Call the onchange handler
-            this.playerForKey(savedPlayer.key).onchange(this.playerForKey(savedPlayer.key));
-
+                // Call the onchange handler
+                player.onchange(player);
+            }
         }.bind(this));
 
         // Render
@@ -737,7 +739,7 @@ module.exports = function() {
                 // Check if there is a save file, swap if it exists
                 var saveFile = this.retrievePlayerState(name);
                 if (saveFile) {
-                    this.swapPlayerSave(saveFile, this.players[i]);
+                    this.players[i] = this.swapPlayerSave(saveFile, this.players[i]);
                 }
 
                 this.players[i].onchange = function(player) {
@@ -803,11 +805,13 @@ module.exports = function() {
 
     // Save the state of the player to the players directory
     this.savePlayerState = function(player) {
-        fs.writeFileSync(
-            './server/players/'+player.key+'.wgplayer',
-            JSON.stringify(player),
-            'utf8'
-        );
+        if (player) {
+            fs.writeFileSync(
+                './server/players/'+player.key+'.wgplayer',
+                JSON.stringify(player),
+                'utf8'
+            );
+        }
     }
 
     // Load the state of a player, returns undefined if not found
@@ -834,24 +838,28 @@ module.exports = function() {
     // Swap the contents of a player save with the one currently in memory
     this.swapPlayerSave = function(playerSave, player) {
 
-        // Simply copy
-        player.x = playerSave.x;
-        player.y = playerSave.y;
-        player.nickname = playerSave.nickname;
-        player.admin = playerSave.admin;
-        player.health = playerSave.health;
-        player.selectedBlock = playerSave.selectedBlock;
+        if (player) {
+            // Simply copy
+            player.x = playerSave.x;
+            player.y = playerSave.y;
+            player.nickname = playerSave.nickname;
+            player.admin = playerSave.admin;
+            player.health = playerSave.health;
+            player.selectedBlock = playerSave.selectedBlock;
 
-        // We need to carry the inventory over differently, because of the blockactions
-        player.inventory = [];
-        playerSave.inventory.forEach(function(item) {
-            player.inventory.push({
-                block: blockList.getBlock(
-                    item.block.texture_name
-                ),
-                amount: item.amount
-            });
-        }.bind(this));
+            // We need to carry the inventory over differently, because of the blockactions
+            player.inventory = [];
+            playerSave.inventory.forEach(function(item) {
+                player.inventory.push({
+                    block: blockList.getBlock(
+                        item.block.texture_name
+                    ),
+                    amount: item.amount
+                });
+            }.bind(this));
+        }
+
+        return player;
     }
 
     // Delete the save file of a specific player

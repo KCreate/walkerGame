@@ -29,9 +29,9 @@ module.exports = function(blockList) {
             result: this.blockList.getBlock('sword'),
             amount: 1,
             requirements: [
-                '', 'stone', '',
-                '', 'stone', '',
-                '', 'wood', ''
+                '', 'ironblock', '',
+                '', 'wood', '',
+                '', 'ironbar', ''
             ],
             options: {}
         },
@@ -40,8 +40,8 @@ module.exports = function(blockList) {
             amount: 1,
             requirements: [
                 '', '', 'goldblock',
-                '', 'wood', '',
-                'wood', '', ''
+                '', 'ironbar', '',
+                'ironbar', '', ''
             ],
             options: {}
         },
@@ -50,8 +50,8 @@ module.exports = function(blockList) {
             amount: 1,
             requirements: [
                 '', 'goldblock', 'ironbar',
-                'stone', 'stone', 'stone',
-                'wood', 'stone', ''
+                'ironblock', 'ironblock', 'sword',
+                'wood', 'ironblock', ''
             ],
             options: {}
         },
@@ -59,9 +59,39 @@ module.exports = function(blockList) {
             result: this.blockList.getBlock('ironbar'),
             amount: 4,
             requirements: [
-                'stone', '', 'stone',
+                'ironblock', '', 'ironblock',
+                'ironblock', 'ironblock', 'ironblock',
+                'ironblock', '', 'ironblock'
+            ],
+            options: {}
+        },
+        {
+            result: this.blockList.getBlock('ironblock'),
+            amount: 3,
+            requirements: [
                 'stone', 'stone', 'stone',
-                'stone', '', 'stone'
+                'stone', 'stone', 'stone',
+                'stone', 'stone', 'stone'
+            ],
+            options: {}
+        },
+        {
+            result: this.blockList.getBlock('goldblock'),
+            amount: 3,
+            requirements: [
+                'ironblock', 'ironblock', 'ironblock',
+                'ironblock', 'ironblock', 'ironblock',
+                'ironblock', 'ironblock', 'ironblock'
+            ],
+            options: {}
+        },
+        {
+            result: this.blockList.getBlock('diamondblock'),
+            amount: 3,
+            requirements: [
+                'goldblock', 'goldblock', 'goldblock',
+                'goldblock', 'goldblock', 'goldblock',
+                'goldblock', 'goldblock', 'goldblock'
             ],
             options: {}
         }
