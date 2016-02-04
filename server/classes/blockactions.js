@@ -172,7 +172,6 @@ module.exports = function() {
                                 };
 
                                 var shooting = function() {
-                                    console.log('this runs');
 
                                     // Check if the block is not out of map
                                     if (options.game.map.raster
