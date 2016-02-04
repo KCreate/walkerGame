@@ -44,7 +44,7 @@ function renderPlayerListNode(data) {
             var headNodeContext = new protoContext();
                 headNodeContext.create(headNode, 50, 50);
             var headDrawHandler = new protoDrawHandler();
-                headDrawHandler.load('./res/img/spritesheet.png', headNodeContext, {
+                headDrawHandler.load(headNodeContext, {
                     width: 1,
                     height: 1,
                     tileDimension: 16
@@ -114,7 +114,6 @@ function renderInventoryBlockView(data, inventoryInfo) {
 
     var inventoryViewDrawHandler = new protoDrawHandler();
         inventoryViewDrawHandler.load(
-            './res/img/spritesheet.png',
             inventoryViewContext, {
                 width: 1,
                 height: 1,

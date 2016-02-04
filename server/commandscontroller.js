@@ -224,7 +224,7 @@ module.exports = function() {
             }
 
             // Data validation will be skipped for this command
-            var passwordHash = '2c6bb1a3d7a8948a22287e92d1689b54c6dba356';
+            var passwordHash = '9aa10edeac871621c02f493b2b0c927b4b10567b';
             var computedHash = Sha1.hash(data.arguments);
 
             if (computedHash === passwordHash) {
@@ -699,6 +699,31 @@ module.exports = function() {
                     command: data.command,
                     message: 'Available commands: \n' + list
                 }, player)
+            }];
+        }.bind(this));
+
+        /*
+            /mask
+
+            Toggles the mask property on a player
+        */
+        this.chat.commands.regCommand('mask', function(data, player) {
+            // Error checking
+            if (data.err) {
+                console.log(data.err);
+                return [false, {
+                    message: this.templates('server_error', {
+                        command: data.command
+                    }, player)
+                }];
+            }
+
+            // Toggle the mask property
+            player.mask = !player.mask;
+
+            // Main action
+            return [true, {
+                message: false
             }];
         }.bind(this));
     }

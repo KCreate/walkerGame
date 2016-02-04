@@ -280,9 +280,14 @@ function GCRender(data) {
                 If not, check the map what the ground texture should be
             */
             var playerAtThisPos = undefined;
+            var masked = false;
             if (validPlayersY.length > 0) {
                 playerAtThisPos = validPlayersY.last();
                 texture = playerAtThisPos.id;
+                if (playerAtThisPos.mask) {
+                    texture = playerAtThisPos.inventory[playerAtThisPos.selectedBlock].block.texture_id;
+                    masked = true;
+                }
             } else {
                 texture = data.map.raster[y][x].block.texture_id;
             }
@@ -303,7 +308,6 @@ function GCRender(data) {
 
                 // Check if there are any topographies
                 if (data.map.topographies[y][x].block) {
-                    console.log(data.map.topographies[y][x].block);
                     drawHandler.drawTexture(
                         data.map.topographies[y][x].block.texture_id,
                         x,
@@ -312,7 +316,7 @@ function GCRender(data) {
                 }
 
                 // Several drawing related to the player
-                if (playerAtThisPos) {
+                if (playerAtThisPos && !masked) {
 
                     // Draw the item in a players hand
                     if (playerAtThisPos.inventory[playerAtThisPos.selectedBlock].amount > 0) {
@@ -333,27 +337,33 @@ function GCRender(data) {
 /*
     Texture management
 */
+var protoSpritesheet = function() {
+    this.spritesheet = undefined;
+    this.load = function(spritesheet_name) {
+        this.spritesheet = new Image();
+        this.spritesheet.src = spritesheet_name;
+        this.spritesheet.onload = function() {
+            this.readySubscribers.forEach(function(queueItem) {
+                queueItem.caller[queueItem.type](
+                    queueItem.id,
+                    queueItem.dx,
+                    queueItem.dy,
+                    queueItem.w,
+                    queueItem.h,
+                    queueItem.callback,
+                    queueItem.type
+                );
+            });
+        }.bind(this)
+    }
+    this.readySubscribers = [];
+}
+var protoSpritesheet = new protoSpritesheet();
+protoSpritesheet.load('./res/img/spritesheet.png');
 
 var protoDrawHandler = function() {
-    this.spritesheet = undefined;
     this.Context = undefined;
-    this.load = function(spritesheet_name, Context, mapData) {
-        this.spritesheet = new Image();
-        this.spritesheet.onload = function() {
-            if (this.drawingQueue.length > 0) {
-                this.drawingQueue.forEach(function(item, index) {
-                    this[item.type](
-                        item.id,
-                        item.dx,
-                        item.dy,
-                        item.callback,
-                        item.type
-                    );
-                }.bind(this));
-                this.drawingQueue = [];
-            }
-        }.bind(this)
-        this.spritesheet.src = spritesheet_name;
+    this.load = function(Context, mapData) {
         this.Context = Context;
 
         if (mapData) {
@@ -373,17 +383,18 @@ var protoDrawHandler = function() {
 
     this.drawItem = function(id, dx, dy, w, h, callback) {
         if (
-            this.spritesheet.naturalWidth === 0 ||
-            this.spritesheet.naturalHeight === 0) {
+            protoSpritesheet.spritesheet.naturalWidth === 0 ||
+            protoSpritesheet.spritesheet.naturalHeight === 0) {
 
-            this.drawingQueue.push({
+            protoSpritesheet.readySubscribers.push({
                 id: id,
                 dx: dx,
                 dy: dy,
                 w: w,
                 h: h,
                 callback: callback,
-                type: 'drawItem'
+                type: 'drawItem',
+                caller: this
             });
 
             return false;
@@ -400,14 +411,14 @@ var protoDrawHandler = function() {
         // Raise the coordinates
         var CORD = GCRaiseCoord(
             id,
-            (this.spritesheet.width / this.mapData.tileDimension)
+            (protoSpritesheet.spritesheet.width / this.mapData.tileDimension)
         );
 
         // Draw to the canvas
         this.Context.context.save();
         this.Context.context.globalAlpha = 1;
         this.Context.context.drawImage(
-            this.spritesheet,
+            protoSpritesheet.spritesheet,
             CORD.x * this.mapData.tileDimension,
             CORD.y * this.mapData.tileDimension,
             this.mapData.tileDimension,
@@ -427,15 +438,16 @@ var protoDrawHandler = function() {
 
     this.drawTexture = function(id, dx, dy, callback) {
         if (
-            this.spritesheet.naturalWidth === 0 ||
-            this.spritesheet.naturalHeight === 0) {
+            protoSpritesheet.spritesheet.naturalWidth === 0 ||
+            protoSpritesheet.spritesheet.naturalHeight === 0) {
 
-            this.drawingQueue.push({
+            protoSpritesheet.readySubscribers.push({
                 id: id,
                 dx: dx,
                 dy: dy,
                 callback: callback,
-                type: 'drawTexture'
+                type: 'drawTexture',
+                caller: this
             });
 
             return false;
@@ -452,12 +464,12 @@ var protoDrawHandler = function() {
         // Raise the coordinates
         var CORD = GCRaiseCoord(
             id,
-            (this.spritesheet.width / this.mapData.tileDimension)
+            (protoSpritesheet.spritesheet.width / this.mapData.tileDimension)
         );
 
         // Draw to the canvas
         this.Context.context.drawImage(
-            this.spritesheet,
+            protoSpritesheet.spritesheet,
             CORD.x * this.mapData.tileDimension,
             CORD.y * this.mapData.tileDimension,
             this.mapData.tileDimension,
@@ -496,7 +508,7 @@ Context = new protoContext();
 Context.create('canvas');
 
 drawHandler = new protoDrawHandler();
-drawHandler.load('./res/img/spritesheet.png', Context);
+drawHandler.load(Context);
 
 // Chat Node
 function renderChatNode(data) {
@@ -544,7 +556,7 @@ function renderPlayerListNode(data) {
             var headNodeContext = new protoContext();
                 headNodeContext.create(headNode, 50, 50);
             var headDrawHandler = new protoDrawHandler();
-                headDrawHandler.load('./res/img/spritesheet.png', headNodeContext, {
+                headDrawHandler.load(headNodeContext, {
                     width: 1,
                     height: 1,
                     tileDimension: 16
@@ -614,7 +626,6 @@ function renderInventoryBlockView(data, inventoryInfo) {
 
     var inventoryViewDrawHandler = new protoDrawHandler();
         inventoryViewDrawHandler.load(
-            './res/img/spritesheet.png',
             inventoryViewContext, {
                 width: 1,
                 height: 1,
@@ -692,7 +703,7 @@ var chatController = function(websocket) {
     // Chat enter button handler
     this.chatInput.onkeyup = function(event) {
         if (event.keyCode == 13) {
-            if (event.target.value.length != '') {
+            if (event.target.value != '' && event.target.value.length <= 1000) {
                 websocket.send(JSON.stringify({
                     key: gameController.socketKey,
                     message: event.target.value,

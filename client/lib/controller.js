@@ -46,7 +46,7 @@ var chatController = function(websocket) {
     // Chat enter button handler
     this.chatInput.onkeyup = function(event) {
         if (event.keyCode == 13) {
-            if (event.target.value.length != '') {
+            if (event.target.value != '' && event.target.value.length <= 1000) {
                 websocket.send(JSON.stringify({
                     key: gameController.socketKey,
                     message: event.target.value,

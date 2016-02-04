@@ -23,6 +23,9 @@ module.exports = function(key, id) {
     // Permissions
     this.admin = false;
 
+    // Random
+    this.mask = false;
+
     // Health
     this.health = 100;
     this.impactHealth = function(amount) {

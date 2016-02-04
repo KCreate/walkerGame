@@ -799,6 +799,7 @@ module.exports = function() {
             player.admin = playerSave.admin;
             player.health = playerSave.health;
             player.selectedBlock = playerSave.selectedBlock;
+            player.masked = playerSave.masked;
 
             // We need to carry the inventory over differently, because of the blockactions
             player.inventory = [];

@@ -156,7 +156,7 @@ module.exports = function() {
                                     return true;
                                 }
                             });
-                            if (ammo.length > 0) {
+                            if (ammo[0].amount > 0) {
                                 var bDIF = ({
                                     up: {x:0,y:-1},
                                     right: {x:1,y:0},
