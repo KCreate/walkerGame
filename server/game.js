@@ -6,6 +6,9 @@ var Crafting        = new (require('./classes/crafting.js'))(blockList)
 
 // Exports
 module.exports = function() {
+    this.Crafting = Crafting;
+    this.blockList = blockList;
+
     this.action = function(control, playerName) {
 
         var modifier = control.split(':')[1];
@@ -129,7 +132,7 @@ module.exports = function() {
 
                             if (allowsBreaking) {
                                 // Call the onremove handler
-                                this.map.raster
+                                var tmpChangedRC = this.map.raster
                                     [player.y + bDIF.y]
                                     [player.x + bDIF.x].block.onremove({
                                         x: player.x + bDIF.x,
@@ -139,25 +142,43 @@ module.exports = function() {
                                         type: 'remove'
                                     });
 
-                                // Place the block
+                                changedRC.xChanged.push(tmpChangedRC.xChanged);
+                                changedRC.yChanged.push(tmpChangedRC.yChanged);
+
+                                // Place the a dirt block
                                 this.map.raster
                                     [player.y + bDIF.y]
-                                    [player.x + bDIF.x].block = blockList.getBlock('dirt');
+                                    [player.x + bDIF.x].block = this.blockList.getBlock('dirt');
+
+                                // Call the onplace handler of the dirt block
+                                var tmpChangedRC = this.map.raster
+                                    [player.y + bDIF.y]
+                                    [player.x + bDIF.x].block.onplace({
+                                        x: player.x,
+                                        y: player.y,
+                                        game: this,
+                                        player: player,
+                                        type: 'place'
+                                    });
+
+                                changedRC.xChanged.push(tmpChangedRC.xChanged);
+                                changedRC.yChanged.push(tmpChangedRC.yChanged);
 
                                 // If the block drops, give it to the player
-                                if (blockList.getBlock(
+                                if (this.blockList.getBlock(
                                     player.inventory[player.selectedBlock].block.texture_name
                                 ).drops) {
 
-
+                                    // Place it in the players inventory
                                     player.changeResource({
-                                        block: blockList.getBlock(
+                                        block: this.blockList.getBlock(
                                             player.inventory[player.selectedBlock].block.texture_name
                                         ),
                                         amount: 1
                                     });
                                 }
 
+                                // Update the changedRC object
                                 changedRC.xChanged.push(player.x + bDIF.x);
                                 changedRC.yChanged.push(player.y + bDIF.y);
                             }
@@ -180,7 +201,7 @@ module.exports = function() {
 
                             if (allowsBreaking) {
                                 // Call the onremove handler
-                                this.map.raster
+                                var tmpChangedRC = this.map.raster
                                     [player.y + bDIF.y]
                                     [player.x + bDIF.x].block.onremove({
                                         x: player.x + bDIF.x,
@@ -190,14 +211,17 @@ module.exports = function() {
                                         type: 'remove'
                                     });
 
+                                changedRC.xChanged.push(tmpChangedRC.xChanged);
+                                changedRC.yChanged.push(tmpChangedRC.yChanged);
+
                                 // If the block drops, give it to the player
-                                if (blockList.getBlock(
+                                if (this.blockList.getBlock(
                                     this.map.raster[player.y + bDIF.y][player.x + bDIF.x].block.texture_name
                                 ).drops) {
 
                                     // Collect the block and place it in the inventory of the player
                                     player.changeResource({
-                                        block: blockList.getBlock(
+                                        block: this.blockList.getBlock(
                                             this.map.raster[player.y + bDIF.y][player.x + bDIF.x].block.texture_name
                                         ),
                                         amount: 1
@@ -205,8 +229,25 @@ module.exports = function() {
                                 }
 
                                 // Overwrite the field with dirt
-                                this.map.raster[player.y + bDIF.y][player.x + bDIF.x].block = blockList.getBlock('dirt');
+                                this.map.raster
+                                    [player.y + bDIF.y]
+                                    [player.x + bDIF.x].block = this.blockList.getBlock('dirt');
 
+                                // onplace handler of the block
+                                var tmpChangedRC = this.map.raster
+                                    [player.y + bDIF.y]
+                                    [player.x + bDIF.x].block.onplace({
+                                        x: player.x,
+                                        y: player.y,
+                                        game: this,
+                                        player: player,
+                                        type: 'place'
+                                    });
+
+                                changedRC.xChanged.push(tmpChangedRC.xChanged);
+                                changedRC.yChanged.push(tmpChangedRC.yChanged);
+
+                                // update the changedRC object
                                 changedRC.xChanged.push(player.x + bDIF.x);
                                 changedRC.yChanged.push(player.y + bDIF.y);
                             }
@@ -223,18 +264,18 @@ module.exports = function() {
 
                                     this.map.raster
                                     [player.y + bDIF.y]
-                                    [player.x + bDIF.x].block = blockList.getBlock(
+                                    [player.x + bDIF.x].block = this.blockList.getBlock(
                                         player.inventory[player.selectedBlock].block.texture_name
                                     );
 
                                     // If it's an infinite block, don't remove from the inventory
-                                    if (!blockList.getBlock(
+                                    if (!this.blockList.getBlock(
                                         player.inventory[player.selectedBlock].block.texture_name
                                     ).infinite) {
 
                                         // Remove one of the currently selected blocks
                                         player.changeResource({
-                                            block: blockList.getBlock(
+                                            block: this.blockList.getBlock(
                                                 player.inventory[player.selectedBlock].block.texture_name
                                             ),
                                             amount: -1
@@ -242,7 +283,7 @@ module.exports = function() {
                                     }
 
                                     // Call the onplace handler
-                                    this.map.raster
+                                    var tmpChangedRC = this.map.raster
                                         [player.y + bDIF.y]
                                         [player.x + bDIF.x].block.onplace({
                                             x: player.x + bDIF.x,
@@ -252,32 +293,12 @@ module.exports = function() {
                                             type: 'place'
                                         });
 
+                                    changedRC.xChanged.push(tmpChangedRC.xChanged);
+                                    changedRC.yChanged.push(tmpChangedRC.yChanged);
+
                                     changedRC.xChanged.push(player.x + bDIF.x);
                                     changedRC.yChanged.push(player.y + bDIF.y);
                                 }
-                            }
-                        }
-                    } else {
-                        // There is a player at this position
-
-                        // Check if the selected resource is an item
-                        if (player.inventory[player.selectedBlock].block.item) {
-
-                            // Interact with the player
-                            this.action('interact:'+bDIF.direction, player.key);
-
-                            // If the item is not infinite, remove one
-                            if (!blockList.getBlock(
-                                player.inventory[player.selectedBlock].block.texture_name
-                            ).infinite) {
-
-                                // Remove one of the currently selected blocks
-                                player.changeResource({
-                                    block: blockList.getBlock(
-                                        player.inventory[player.selectedBlock].block.texture_name
-                                    ),
-                                    amount: -1
-                                });
                             }
                         }
                     }
@@ -312,7 +333,7 @@ module.exports = function() {
 
                             var damageDealt = 0;
 
-                            // Check if the player who started the interaction has an item in his hand
+                            // Get the damage the item deals
                             if (player.inventory[player.selectedBlock].block.item) {
                                 if (player.inventory[player.selectedBlock].block.health_effects) {
                                     if (player.inventory[player.selectedBlock].block.health_effects.playerDamage) {
@@ -323,127 +344,40 @@ module.exports = function() {
 
                             // Cooldown logic
                             if ((Date.now() - player.joinedAt) >= this.damageCooldown) {
+
                                 // Hit the player
                                 playersHere.forEach(function(item) {
                                     if (item) {
                                         item.impactHealth(-damageDealt);
                                     }
                                 });
+
                             } else {
                                 player.impactHealth(-0.5);
                             }
                         } else {
-                            // If the player has a craftingwand in his hand, use it
-                            if (player.inventory[player.selectedBlock].block.item &&
-                                player.inventory[player.selectedBlock].block.texture_name == 'craftingwand'
-                            ) {
-                                // Positions of the blocks
-                                var positions = ({
-                                    up: [
-                                        [-3, -1],
-                                        [-3,  0],
-                                        [-3,  1],
-                                        [-2, -1],
-                                        [-2,  0],
-                                        [-2,  1],
-                                        [-1, -1],
-                                        [-1,  0],
-                                        [-1,  1]
-                                    ],
-                                    right: [
-                                        [-1,  1],
-                                        [-1,  2],
-                                        [-1,  3],
-                                        [0,   1],
-                                        [0,   2],
-                                        [0,   3],
-                                        [1,   1],
-                                        [1,   2],
-                                        [1,   3]
-                                    ],
-                                    down: [
-                                        [1, -1],
-                                        [1,  0],
-                                        [1,  1],
-                                        [2, -1],
-                                        [2,  0],
-                                        [2,  1],
-                                        [3, -1],
-                                        [3,  0],
-                                        [3,  1]
-                                    ],
-                                    left: [
-                                        [-1, -3],
-                                        [-1, -2],
-                                        [-1, -1],
-                                        [0,  -3],
-                                        [0,  -2],
-                                        [0,  -1],
-                                        [1,  -3],
-                                        [1,  -2],
-                                        [1,  -1]
-                                    ]
-                                })[modifier];
+                            /*
+                                If the player has an item in his hand, call the onreact handler
+                                Pass it an extra argument called 'direction' that indicates in which direction the action,
+                                is pointing
 
-                                // Get all the blocks
-                                var blocks = [];
-                                try {
-                                    positions.forEach(function(item) {
-                                        blocks.push(
-                                            this.map.raster[player.y + item[0]][player.x + item[1]].block
-                                        );
-                                    }.bind(this));
-                                } catch (e) {
-                                    console.log('Invalid crafting ' + e);
-                                    return false;
-                                }
+                                The direction value could just be calculated by the onreact function,
+                                but since we have that value already, we'll just pass it here for simplicity reasons
+                            */
 
-                                // Debugging
-                                if (this.verbose) {
-                                    console.log([
-                                        [blocks[0].texture_name, blocks[1].texture_name, blocks[2].texture_name].join('-'),
-                                        [blocks[3].texture_name, blocks[4].texture_name, blocks[5].texture_name].join('-'),
-                                        [blocks[6].texture_name, blocks[7].texture_name, blocks[8].texture_name].join('-')
-                                    ].join('\n'));
-                                }
-
-                                // Pass it to the craft method
-                                var craftingResult = Crafting.craft(blocks.map(function(item) {
-
-                                    var name = item.texture_name;
-
-                                    if (name == 'dirt') {
-                                        name = '';
-                                    }
-
-                                    return name;
-
-                                }), player);
-
-                                if (craftingResult) {
-
-                                    // Reset all blocks in with dirt
-                                    positions.forEach(function(item) {
-                                        this.map.raster
-                                            [player.y + item[0]]
-                                            [player.x + item[1]].block = blockList.getBlock('dirt');
-
-                                        changedRC.xChanged.push(player.x + item[1]);
-                                        changedRC.yChanged.push(player.y + item[0]);
-                                    }.bind(this));
-
-                                    // Add the resource to the players inventory
-                                    player.changeResource({
-                                        block: craftingResult.block,
-                                        amount: craftingResult.amount
-                                    });
-
-                                }
-
+                            if (player.inventory[player.selectedBlock].block.item) {
+                                var tmpChangedRC = player.inventory[player.selectedBlock].block.onreact({
+                                    x: player.x + bDIF.x,
+                                    y: player.y + bDIF.y,
+                                    direction: modifier,
+                                    game: this,
+                                    player: player,
+                                    type: 'react'
+                                });
                             } else {
 
                                 // Interact with the block
-                                this.map.raster[player.y + bDIF.y][player.x + bDIF.x].block.onreact({
+                                var tmpChangedRC = this.map.raster[player.y + bDIF.y][player.x + bDIF.x].block.onreact({
                                     x: player.x + bDIF.x,
                                     y: player.y + bDIF.y,
                                     game: this,
@@ -451,6 +385,9 @@ module.exports = function() {
                                     type: 'interact'
                                 });
                             }
+
+                            changedRC.xChanged.push(tmpChangedRC.xChanged);
+                            changedRC.yChanged.push(tmpChangedRC.yChanged);
                         }
                     }
                 }
@@ -489,7 +426,7 @@ module.exports = function() {
 
                             // Push detection on radius 1
 
-                            if (blockList.getBlock(
+                            if (this.blockList.getBlock(
                                 this.map.raster[
                                     player.y + bDIF.y
                                 ][
@@ -527,7 +464,7 @@ module.exports = function() {
                                                 [player.x + (bDIF.x * 1)].block
 
                                                 // Call onpush method
-                                                this.map.raster
+                                                var tmpChangedRC = this.map.raster
                                                 [player.y + (bDIF.y * 2)]
                                                 [player.x + (bDIF.x * 2)].block.onpush({
                                                     x: player.x + (bDIF.x * 2),
@@ -537,12 +474,13 @@ module.exports = function() {
                                                     type: 'push'
                                                 });
 
+                                                changedRC.xChanged.push(tmpChangedRC.xChanged);
+                                                changedRC.yChanged.push(tmpChangedRC.yChanged);
+
                                                 // Reset old position of pushed block
-                                                this.map.raster[
-                                                    player.y + (bDIF.y * 1)
-                                                ][
-                                                    player.x + (bDIF.x * 1)
-                                                ].block = blockList.getBlock('dirt');
+                                                this.map.raster
+                                                [player.y + (bDIF.y * 1)]
+                                                [player.x + (bDIF.x * 1)].block = this.blockList.getBlock('dirt');
 
                                                 // Update the changed rows and columns object
                                                 if (!!(bDIF.y)) {
@@ -559,7 +497,7 @@ module.exports = function() {
                             }
 
                             // Traversable block detection
-                            if (blockList.getBlock(
+                            if (this.blockList.getBlock(
                                 this.map.raster[
                                     player.y + (bDIF.y * 1)
                                 ][
@@ -576,13 +514,16 @@ module.exports = function() {
                                 }
 
                                 if (this.map.raster[player.y][player.x].block.texture_name !== 'dirt') {
-                                    this.map.raster[player.y][player.x].block.onwalkover({
+                                    var tmpChangedRC = this.map.raster[player.y][player.x].block.onwalkover({
                                         x: player.x,
                                         y: player.y,
                                         game: this,
                                         player: player,
                                         type: 'walkover'
                                     });
+
+                                    changedRC.xChanged.push(tmpChangedRC.xChanged);
+                                    changedRC.yChanged.push(tmpChangedRC.yChanged);
                                 }
 
                                 // Update the changed rows and columns object
@@ -603,6 +544,10 @@ module.exports = function() {
                 }
                 break;
         }
+
+        // Flatten the array as far as possible
+        changedRC.xChanged = [].concat.apply([], changedRC.xChanged);
+        changedRC.yChanged = [].concat.apply([], changedRC.yChanged);
 
         // Remove duplicates from the changedRC object
         changedRC.xChanged = changedRC.xChanged.filter(function(item, index, self) {
@@ -625,17 +570,25 @@ module.exports = function() {
 
     // Clear the map
     this.clearMap = function(width,height,norender) {
-        this.map.width = (width || this.map.width || 20);
-        this.map.height = (height || this.map.height || 20);
-        this.map.raster = new Array(this.map.width);
+        this.map.width          = (width || this.map.width || 20);
+        this.map.height         = (height || this.map.height || 20);
+        this.map.raster         = new Array(this.map.width);
+        this.map.topographies   = new Array(this.map.width);
 
         for (var i=0; i < this.map.width; i++) {
-            this.map.raster[i] = new Array(this.map.height);
+            this.map.raster[i]          = new Array(this.map.height);
+            this.map.topographies[i]    = new Array(this.map.height);
             for (var j=0; j < this.map.height; j++) {
+
+                // Init the map
                 this.map.raster[i][j] = {
-                    block: undefined
+                    block: this.blockList.getBlock('dirt')
                 };
-                this.map.raster[i][j].block = blockList.getBlock('dirt');
+
+                // Init topographies
+                this.map.topographies[i][j] = {
+                    block: undefined
+                }
             }
         }
 
@@ -654,7 +607,7 @@ module.exports = function() {
         // Overwrite each block
         for (var iy=0; iy < this.map.height; iy++) {
             for (var ix=0; ix < this.map.width; ix++) {
-                this.map.raster[iy][ix].block = blockList.getBlock(
+                this.map.raster[iy][ix].block = this.blockList.getBlock(
                     gameSave.map.raster[iy][ix].block.texture_name
                 );
             }
@@ -688,11 +641,9 @@ module.exports = function() {
         width: 0,
         height: 0,
         tileDimension: 16,
-        raster: []
+        raster: [],
+        topographies: []
     };
-
-    // Unused topographies list
-    this.topographies = [];
 
     // The damage cooldown before a player can be hit
     this.damageCooldown = 4000;
@@ -741,6 +692,8 @@ module.exports = function() {
                 if (saveFile) {
                     this.players[i] = this.swapPlayerSave(saveFile, this.players[i]);
                 }
+
+                console.log(this.players[i]);
 
                 this.players[i].onchange = function(player) {
                     if (this.playersChanged) {
@@ -851,7 +804,7 @@ module.exports = function() {
             player.inventory = [];
             playerSave.inventory.forEach(function(item) {
                 player.inventory.push({
-                    block: blockList.getBlock(
+                    block: this.blockList.getBlock(
                         item.block.texture_name
                     ),
                     amount: item.amount

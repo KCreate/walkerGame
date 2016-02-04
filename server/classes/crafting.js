@@ -50,7 +50,7 @@ module.exports = function(blockList) {
             amount: 1,
             requirements: [
                 '', 'goldblock', 'ironbar',
-                'ironblock', 'ironblock', 'sword',
+                'ironblock', 'ironblock', 'ironbar',
                 'wood', 'ironblock', ''
             ],
             options: {}
@@ -86,12 +86,12 @@ module.exports = function(blockList) {
             options: {}
         },
         {
-            result: this.blockList.getBlock('diamondblock'),
-            amount: 3,
+            result: this.blockList.getBlock('ammo'),
+            amount: 16,
             requirements: [
-                'goldblock', 'goldblock', 'goldblock',
-                'goldblock', 'goldblock', 'goldblock',
-                'goldblock', 'goldblock', 'goldblock'
+                'ironblock', 'ironblock', 'ironblock',
+                'ironblock', 'goldblock', 'ironblock',
+                'ironblock', 'ironblock', 'ironblock'
             ],
             options: {}
         }

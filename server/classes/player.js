@@ -30,6 +30,9 @@ module.exports = function(key, id) {
         // Change the health
         this.health += amount;
 
+        // Round the health
+        this.health = Math.round(this.health * 100)/100;
+
         // Max and min health
         if (this.health > 100) {
             this.health = 100;

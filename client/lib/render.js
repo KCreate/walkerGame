@@ -86,11 +86,22 @@ function GCRender(data) {
                     drawHandler.setMapData(data.map);
                 }
 
+                // Draw the ground texture
                 drawHandler.drawTexture(
                     texture,
                     x,
                     y
                 );
+
+                // Check if there are any topographies
+                if (data.map.topographies[y][x].block) {
+                    console.log(data.map.topographies[y][x].block);
+                    drawHandler.drawTexture(
+                        data.map.topographies[y][x].block.texture_id,
+                        x,
+                        y
+                    );
+                }
 
                 // Several drawing related to the player
                 if (playerAtThisPos) {

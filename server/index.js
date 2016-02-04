@@ -61,6 +61,7 @@ Chat.on('update', function(update) {
             }));
         } catch (e) {
             console.log(e);
+            secureClose(conn);
         }
     });
 });
@@ -76,6 +77,7 @@ Chat.on('playerInfoChanged', function() {
             );
         } catch (e) {
             console.log(e);
+            secureClose(conn);
         }
     });
 });
@@ -176,7 +178,7 @@ var GameSocket = WebSocket.createServer(function (conn) {
     Game Interaction and Response
 */
 Game.clearMap(DefaultMapSize, DefaultMapSize);
-Game.verbose = true;
+Game.verbose = false;
 
 // Notify sockets that the map changed
 Game.render = function(game, changedRC) {
