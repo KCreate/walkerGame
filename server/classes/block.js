@@ -18,6 +18,7 @@ module.exports = function(options, blockList) {
     this.infinite = false;
     this.item = false;
     this.health_effects = {};
+    this.redirectsBullets = false;
 
     /*
         The 3 methods below are interaction handlers

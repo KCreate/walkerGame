@@ -69,8 +69,8 @@ textures = {
     "ironblock": {
         "texture_id": 15,
         "texture_ff_name": "Iron Block",
-        "traversable": true,
-        "stable": true
+        "stable": true,
+        "redirectsBullets":true
     },
     "goldblock": {
         "texture_id": 16,

@@ -760,7 +760,7 @@ module.exports = function() {
     this.savePlayerState = function(player) {
         if (player) {
             fs.writeFileSync(
-                './server/players/'+player.key+'.wgplayer',
+                './server/players/'+player.key+'.json',
                 JSON.stringify(player),
                 'utf8'
             );
@@ -769,8 +769,8 @@ module.exports = function() {
 
     // Load the state of a player, returns undefined if not found
     this.retrievePlayerState = function(key) {
-        // Check if there is a wgplayer file for the current player
-        var possibleSaveFileLocation = './server/players/'+key+'.wgplayer';
+        // Check if there is a json file for the current player
+        var possibleSaveFileLocation = './server/players/'+key+'.json';
         if (fs.existsSync(
             possibleSaveFileLocation
         )) {
@@ -819,7 +819,7 @@ module.exports = function() {
     // Delete the save file of a specific player
     this.deletePlayerSave = function(key) {
         var location = "./server/players/";
-        var ending = "wgplayer";
+        var ending = "json";
         var path = location + key + "." + ending;
 
         if (

@@ -120,6 +120,7 @@ var GameSocket = WebSocket.createServer(function (conn) {
 
     if (!Game.registerPlayer((permaKey || conn.key))) {
         secureClose(conn);
+        return false;
     }
 
     // Send down the whole chat

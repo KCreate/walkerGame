@@ -216,29 +216,29 @@ module.exports = function() {
                                         } else {
 
                                             // Check if the block is traversable
-                                            if (options.game.map.raster
+                                            if (!options.game.map.raster
                                                     [bulletInfo.y + bDIF.y]
-                                                    [bulletInfo.x + bDIF.x].block.traversable) {
+                                                    [bulletInfo.x + bDIF.x].block.traversable)
+                                            {
+                                                // Check if the block reflects
+                                                if (options.game.map.raster
+                                                        [bulletInfo.y + bDIF.y]
+                                                        [bulletInfo.x + bDIF.x].block.redirectsBullets) {
 
-                                                // Reset the old field
-                                                options.game.map.topographies
-                                                    [bulletInfo.y]
-                                                    [bulletInfo.x].block = undefined;
+                                                    bDIF.x = -bDIF.x;
+                                                    bDIF.y = -bDIF.y;
 
-                                                // Update the new field
-                                                options.game.map.topographies
-                                                    [bulletInfo.y + bDIF.y]
-                                                    [bulletInfo.x + bDIF.x].block = options.game.blockList.getBlock('ammo');
+                                                } else {
 
-                                            } else {
-                                                // Reset the field
-                                                options.game.map.topographies
-                                                    [bulletInfo.y]
-                                                    [bulletInfo.x].block = undefined;
+                                                    // Reset the field
+                                                    options.game.map.topographies
+                                                            [bulletInfo.y]
+                                                            [bulletInfo.x].block = undefined;
 
-                                                // Stop the loop
-                                                console.log('removing the bullet');
-                                                clearInterval(shootingInterval);
+                                                    // Stop the loop
+                                                    console.log('removing the bullet');
+                                                    clearInterval(shootingInterval);
+                                                }
                                             }
                                         }
 
@@ -253,12 +253,25 @@ module.exports = function() {
                                         clearInterval(shootingInterval);
                                     }
 
-                                    // Increase the damage by 20% per block traveled
-                                    bulletInfo.damageMultiplier *= 1.1;
+                                    // Reset the field
+                                    options.game.map.topographies
+                                            [bulletInfo.y]
+                                            [bulletInfo.x].block = undefined;
 
-                                    // Update the position
-                                    bulletInfo.x += bDIF.x;
-                                    bulletInfo.y += bDIF.y;
+                                    // If the timer wasn't cancelled, move the bullet
+                                    if (shootingInterval['0'] === undefined) {
+                                        // Update the new field
+                                        options.game.map.topographies
+                                            [bulletInfo.y + bDIF.y]
+                                            [bulletInfo.x + bDIF.x].block = options.game.blockList.getBlock('ammo');
+
+                                        // Increase the damage by 20% per block traveled
+                                        bulletInfo.damageMultiplier *= 1.1;
+
+                                        // Update the position
+                                        bulletInfo.x += bDIF.x;
+                                        bulletInfo.y += bDIF.y;
+                                    }
 
                                     // Call the render method of the game
                                     if (options.game.render) {
@@ -269,6 +282,7 @@ module.exports = function() {
                                     }
                                 }
                                 var shootingInterval = setInterval(shooting, 80);
+
 
                                 // Remove on shell from the inventory
                                 options.player.changeResource({

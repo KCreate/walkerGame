@@ -579,7 +579,7 @@ module.exports = function() {
             if (player.admin) {
 
                 // Write the file
-                var filename = "./server/worlds/" + arguments[0].arguments.split('.').join('') + ".wgmap";
+                var filename = "./server/worlds/" + arguments[0].arguments.split('.').join('') + ".json";
                 fs.writeFileSync(filename, JSON.stringify(this.game), 'utf8');
 
                 // Successfully saved the file
@@ -639,28 +639,31 @@ module.exports = function() {
             if (player.admin) {
 
                 // Load the file
-                var filename = "./server/worlds/" + arguments[0].arguments.split('.').join('') + ".wgmap";
+                var filename = "./server/worlds/" + arguments[0].arguments.split('.').join('') + ".json";
 
                 // Load the save
-                var file = fs.readFileSync(filename, 'utf8');
-                    file = JSON.parse(file);
+                if (fs.existsSync(filename)) {
+                    var file = fs.readFileSync(filename, 'utf8');
+                        file = JSON.parse(file);
 
-                // Load a new map
-                this.game.loadMap(file);
+                    // Load a new map
+                    this.game.loadMap(file);
+                } else {
+                    // Response if the savename already exists
+                    return [false, {
+                        message: this.templates('misc_error', {
+                            command: data.command,
+                            message: 'A world with this name was not found'
+                        }, player)
+                    }];
+                }
+
 
                 // Successfully saved the file
                 return [true, {
                     message: this.templates('success', {
                         command: data.command,
                         message: player.name() + ' successfully loaded the world with name: ' + data.arguments
-                    }, player)
-                }];
-
-                // Response if the savename already exists
-                return [false, {
-                    message: this.templates('misc_error', {
-                        command: data.command,
-                        message: 'A world with this name already exists'
                     }, player)
                 }];
             } else {
