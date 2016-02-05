@@ -134,6 +134,7 @@ var GameSocket = WebSocket.createServer(function (conn) {
     } catch (e) {
         console.log(e);
         secureClose(conn);
+        return false;
     }
 
     conn.on("text", function (data) {
@@ -169,11 +170,21 @@ var GameSocket = WebSocket.createServer(function (conn) {
     });
 
     conn.on('error', function(err) {
-        console.log("line 108" + err);
+        console.log("line 173: " + err);
         secureClose(conn);
+        return false;
     });
 
 }).listen(GamePort);
+
+/*
+    Securely close the websocket connection without crashing
+*/
+function secureClose(conn) {
+    if (conn.readyState === 1 || conn.readyState === 2) {
+        conn.close();
+    }
+}
 
 /*
     Game Interaction and Response
@@ -263,12 +274,3 @@ Game.playersChanged = function(players) {
 */
 CommandsController.setup(Game, Chat, GameSocket);
 CommandsController.startRegistering();
-
-/*
-    Securely close the websocket connection without crashing
-*/
-function secureClose(conn) {
-    if (conn.readyState === 1 || conn.readyState === 2) {
-        try { conn.close(); } catch (e) { console.log(e); }
-    }
-}

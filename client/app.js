@@ -814,6 +814,7 @@ var gameController = function(websocket) {
                     }
 
                 } else {
+                    // Send the event to the server
                     this.action(({
                         // WASD
                         87: 'up',
@@ -838,6 +839,22 @@ var gameController = function(websocket) {
 
     // Game action method
     this.action = function(actionName) {
+
+        if (
+            actionName == 'up' ||
+            actionName == 'right' ||
+            actionName == 'down' ||
+            actionName == 'left'
+        ) {
+            var walkingSound = new Audio('res/sounds/walking.mp3');
+            walkingSound.volume = 0.3;
+            walkingSound.play();
+        } else {
+            var interactSound = new Audio('res/sounds/interact.mp3');
+            interactSound.volume = 0.6;
+            interactSound.play();
+        }
+
         websocket.send(JSON.stringify({
             actionName,
             key: this.socketKey,
