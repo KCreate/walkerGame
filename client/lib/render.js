@@ -135,6 +135,8 @@ var protoSpritesheet = function() {
         this.spritesheet = new Image();
         this.spritesheet.src = spritesheet_name;
         this.spritesheet.onload = function() {
+            console.dir(this.spritesheet);
+            console.log('image did load: ' + this.readySubscribers.length);
             this.readySubscribers.forEach(function(queueItem) {
                 queueItem.caller[queueItem.type](
                     queueItem.id,
@@ -176,7 +178,8 @@ var protoDrawHandler = function() {
     this.drawItem = function(id, dx, dy, w, h, callback) {
         if (
             protoSpritesheet.spritesheet.naturalWidth === 0 ||
-            protoSpritesheet.spritesheet.naturalHeight === 0) {
+            protoSpritesheet.spritesheet.naturalHeight === 0 ||
+            !protoSpritesheet.spritesheet.complete) {
 
             protoSpritesheet.readySubscribers.push({
                 id: id,
@@ -191,6 +194,12 @@ var protoDrawHandler = function() {
 
             return false;
         }
+
+        console.log([
+            'Rendering',
+            '(w:'+protoSpritesheet.spritesheet.naturalWidth+' h:'+protoSpritesheet.spritesheet.naturalHeight+')',
+            '(c:'+protoSpritesheet.spritesheet.complete+')'
+        ].join('\n'));
 
         if (id === undefined) {
             id = 36;
@@ -231,7 +240,8 @@ var protoDrawHandler = function() {
     this.drawTexture = function(id, dx, dy, callback) {
         if (
             protoSpritesheet.spritesheet.naturalWidth === 0 ||
-            protoSpritesheet.spritesheet.naturalHeight === 0) {
+            protoSpritesheet.spritesheet.naturalHeight === 0 ||
+            !protoSpritesheet.spritesheet.complete) {
 
             protoSpritesheet.readySubscribers.push({
                 id: id,
@@ -244,6 +254,12 @@ var protoDrawHandler = function() {
 
             return false;
         }
+
+        console.log([
+            'Rendering',
+            '(w:'+protoSpritesheet.spritesheet.naturalWidth+' h:'+protoSpritesheet.spritesheet.naturalHeight+')',
+            '(c:'+protoSpritesheet.spritesheet.complete+')'
+        ].join('\n'));
 
         if (id === undefined) {
             id = 36;

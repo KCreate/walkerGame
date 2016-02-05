@@ -261,6 +261,10 @@ chatController          = new chatController(websocket);
 playerListController    = new playerListController(websocket);
 inventoryViewController = new inventoryViewController(websocket);
 
+document.ready = function() {
+    console.log('window onload');
+}
+
 websocket.onmessage = function(event) {
     var data = JSON.parse(event.data);
 
