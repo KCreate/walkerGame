@@ -1,4 +1,3 @@
-Doors (Include custom block metadata that is not included in the default block object)
 Portal gun (Use the custom block metadata to store portal location)
 Portal blocks (Use the metadata to store the owner and the other portal)
 Make the gun shoot through portals
