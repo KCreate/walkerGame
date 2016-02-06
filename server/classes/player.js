@@ -51,6 +51,10 @@ module.exports = function(key, id) {
     //Inventory
     this.inventory = [
         {
+            block: blockList.getBlock('screwdriver'),
+            amount: 1
+        },
+        {
             block: blockList.getBlock('craftingwand'),
             amount: 1
         },

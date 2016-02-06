@@ -1,0 +1,371 @@
+{
+    "player0": {
+        "block": {
+            "texture_id": 0,
+            "placeable": false
+        }
+    },
+    "player1": {
+        "block": {
+            "texture_id": 1,
+            "placeable": false
+        }
+    },
+    "player2": {
+        "block": {
+            "texture_id": 2,
+            "placeable": false
+        }
+    },
+    "player3": {
+        "block": {
+            "texture_id": 3,
+            "placeable": false
+        }
+    },
+    "player4": {
+        "block": {
+            "texture_id": 4,
+            "placeable": false
+        }
+    },
+    "player5": {
+        "block": {
+            "texture_id": 5,
+            "placeable": false
+        }
+    },
+    "player6": {
+        "block": {
+            "texture_id": 6,
+            "placeable": false
+        }
+    },
+    "player7": {
+        "block": {
+            "texture_id": 7,
+            "placeable": false
+        }
+    },
+    "dirt": {
+        "block": {
+            "texture_id": 8,
+            "texture_ff_name": "Dirt",
+            "traversable": true,
+            "stable": true
+        }
+    },
+    "stone": {
+        "block": {
+            "texture_id": 9,
+            "texture_ff_name": "Stone",
+            "stable": true
+        }
+    },
+    "cobblestone": {
+        "block": {
+            "texture_id": 10,
+            "texture_ff_name": "Cobblestone",
+            "stable": false
+        },
+        "crafting": {
+            "requirements": [
+                "stone",
+                "stone",
+                "stone",
+                "stone"
+            ],
+            "amount": 4,
+            "options": {}
+        }
+    },
+    "tnt": {
+        "block": {
+            "texture_id": 11,
+            "texture_ff_name": "TNT"
+        },
+        "crafting": {
+            "requirements": [
+                "gravel","sand","gravel",
+                "sand","gravel","sand",
+                "gravel","sand","gravel"
+            ],
+            "amount": 8,
+            "options": {}
+        }
+    },
+    "wood": {
+        "block": {
+            "texture_id": 12,
+            "texture_ff_name": "Wood",
+            "pushable": true
+        }
+    },
+    "bookshelf": {
+        "block": {
+            "texture_id": 13,
+            "texture_ff_name": "Bookshelf",
+            "pushable": true
+        }
+    },
+    "brick": {
+        "block": {
+            "texture_id": 14,
+            "texture_ff_name": "Brick",
+            "stable": true
+        },
+        "crafting": {
+            "requirements": [
+                "cobblestone","gravel","cobblestone",
+                "gravel","cobblestone","gravel",
+                "cobblestone","gravel","cobblestone"
+            ],
+            "amount": 16,
+            "options": {}
+        }
+    },
+    "ironblock": {
+        "block": {
+            "texture_id": 15,
+            "texture_ff_name": "Iron Block",
+            "stable": true,
+            "redirectsBullets": true
+        },
+        "crafting": {
+            "requirements": [
+                "stone","stone","stone",
+                "stone","stone","stone",
+                "stone","stone","stone"
+            ],
+            "amount": 6,
+            "options": {}
+        }
+    },
+    "goldblock": {
+        "block": {
+            "texture_id": 16,
+            "texture_ff_name": "Gold Block",
+            "traversable": true,
+            "stable": true
+        },
+        "crafting": {
+            "requirements": [
+                "ironblock","ironblock","ironblock",
+                "ironblock","ironblock","ironblock",
+                "ironblock","ironblock","ironblock"
+            ],
+            "amount": 1,
+            "options": {}
+        }
+    },
+    "diamondblock": {
+        "block": {
+            "texture_id": 17,
+            "texture_ff_name": "Diamond Block",
+            "traversable": true,
+            "stable": true
+        }
+    },
+    "glass": {
+        "block": {
+            "texture_id": 18,
+            "texture_ff_name": "Glass Pane",
+            "drops": false
+        },
+        "crafting": {
+            "requirements": [
+                "sand","sand","sand",
+                "sand","sand","sand",
+                "sand","sand","sand"
+            ],
+            "amount": 16,
+            "options": {}
+        }
+    },
+    "ironbar": {
+        "block": {
+            "texture_id": 19,
+            "texture_ff_name": "Iron Bar",
+            "stable": true
+        },
+        "crafting": {
+            "requirements": [
+                "ironblock","","ironblock",
+                "ironblock","ironblock","ironblock",
+                "ironblock","","ironblock"
+            ],
+            "amount": 16,
+            "options": {}
+        }
+    },
+    "mossycobblestone": {
+        "block": {
+            "texture_id": 20,
+            "texture_ff_name": "Mossy Cobblestone",
+            "stable": true
+        }
+    },
+    "sand": {
+        "block": {
+            "texture_id": 21,
+            "texture_ff_name": "Sand",
+            "traversable": true
+        },
+        "crafting": {
+            "requirements": [
+                "gravel","stone","gravel",
+                "stone","gravel","stone",
+                "gravel","stone","gravel"
+            ],
+            "amount": 9,
+            "options": {}
+        }
+    },
+    "gravel": {
+        "block": {
+            "texture_id": 22,
+            "texture_ff_name": "Gravel",
+            "pushable": true
+        },
+        "crafting": {
+            "requirements": [
+                "cobblestone","cobblestone","cobblestone",
+                "cobblestone","cobblestone","cobblestone",
+                "cobblestone","cobblestone","cobblestone"
+            ],
+            "amount": 9,
+            "options": {}
+        }
+    },
+    "woodlog": {
+        "block": {
+            "texture_id": 23,
+            "texture_ff_name": "Wood Log"
+        }
+    },
+    "bedrock": {
+        "block": {
+            "texture_id": 24,
+            "texture_ff_name": "Bedrock",
+            "stable": true,
+            "onlyadminbreakable": true
+        }
+    },
+    "sword": {
+        "block": {
+            "texture_id": 25,
+            "texture_ff_name": "Sword",
+            "item": true,
+            "drops": false,
+            "health_effects": {
+                "playerDamage": 12
+            }
+        },
+        "crafting": {
+            "requirements": [
+                "","ironblock","",
+                "","wood","",
+                "","ironbar",""
+            ],
+            "amount": 1,
+            "options": {}
+        }
+    },
+    "craftingwand": {
+        "block": {
+            "texture_id": 26,
+            "texture_ff_name": "Crafting Wand",
+            "item": true,
+            "drops": false,
+            "infinite": true
+        }
+    },
+    "healingwand": {
+        "block": {
+            "texture_id": 27,
+            "texture_ff_name": "Healing Wand",
+            "item": true,
+            "drops": false,
+            "infinite": true,
+            "health_effects": {
+                "playerDamage": -5
+            }
+        },
+        "crafting": {
+            "requirements": [
+                "","","goldblock",
+                "","ironbar","",
+                "ironbar","",""
+            ],
+            "amount": 1,
+            "options": {}
+        }
+    },
+    "rifle": {
+        "block": {
+            "texture_id": 28,
+            "texture_ff_name": "Rifle",
+            "item": true,
+            "drops": false,
+            "health_effects": {
+                "playerDamage": 100
+            }
+        },
+        "crafting": {
+            "requirements": [
+                "","goldblock","ironbar",
+                "ironblock","ironblock","ironbar",
+                "wood","ironblock",""
+            ],
+            "amount": 1,
+            "options": {}
+        }
+    },
+    "ammo": {
+        "block": {
+            "texture_id": 29,
+            "texture_ff_name": "Ammo",
+            "item": true,
+            "drops": false,
+            "health_effects": {
+                "playerDamage": 10
+            }
+        },
+        "crafting": {
+            "requirements": [
+                "ironblock","ironblock","ironblock",
+                "ironblock","goldblock","ironblock",
+                "ironblock","ironblock","ironblock"
+            ],
+            "amount": 32,
+            "options": {}
+        }
+    },
+    "door": {
+        "block": {
+            "texture_id": 30,
+            "texture_ff_name": "Door",
+            "metadata": {
+                "open": false,
+                "closetexture": 30,
+                "opentexture": 31
+            }
+        },
+        "crafting": {
+            "requirements": [
+                "wood","wood","",
+                "wood","wood","",
+                "wood","wood",""
+            ],
+            "amount": 1,
+            "options": {}
+        }
+    },
+    "screwdriver": {
+        "block": {
+            "texture_id": 32,
+            "texture_ff_name": "Screwdriver",
+            "item": true
+        }
+    }
+}

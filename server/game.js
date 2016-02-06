@@ -115,78 +115,9 @@ module.exports = function() {
 
                     if (playersHere.length == 0) {
 
-                        if (this.map.raster[player.y + bDIF.y][player.x + bDIF.x].block.texture_name
-                            ==
-                            player.inventory[player.selectedBlock].block.texture_name) {
-                            // This assumes the field is the one currently selected
-
-                            // Check if the block is only breakable by an admin
-                            var allowsBreaking = true;
-                            if (this.map.raster
-                                [player.y + bDIF.y]
-                                [player.x + bDIF.x].block.onlyadminbreakable) {
-                                if (!player.admin) {
-                                    allowsBreaking = false;
-                                }
-                            }
-
-                            if (allowsBreaking) {
-                                // Call the onremove handler
-                                var tmpChangedRC = this.map.raster
-                                    [player.y + bDIF.y]
-                                    [player.x + bDIF.x].block.onremove({
-                                        x: player.x + bDIF.x,
-                                        y: player.y + bDIF.y,
-                                        game: this,
-                                        player: player,
-                                        type: 'remove'
-                                    });
-
-                                changedRC.xChanged.push(tmpChangedRC.xChanged);
-                                changedRC.yChanged.push(tmpChangedRC.yChanged);
-
-                                // Place the a dirt block
-                                this.map.raster
-                                    [player.y + bDIF.y]
-                                    [player.x + bDIF.x].block = this.blockList.getBlock('dirt');
-
-                                // Call the onplace handler of the dirt block
-                                var tmpChangedRC = this.map.raster
-                                    [player.y + bDIF.y]
-                                    [player.x + bDIF.x].block.onplace({
-                                        x: player.x,
-                                        y: player.y,
-                                        game: this,
-                                        player: player,
-                                        type: 'place'
-                                    });
-
-                                changedRC.xChanged.push(tmpChangedRC.xChanged);
-                                changedRC.yChanged.push(tmpChangedRC.yChanged);
-
-                                // If the block drops, give it to the player
-                                if (this.blockList.getBlock(
-                                    player.inventory[player.selectedBlock].block.texture_name
-                                ).drops) {
-
-                                    // Place it in the players inventory
-                                    player.changeResource({
-                                        block: this.blockList.getBlock(
-                                            player.inventory[player.selectedBlock].block.texture_name
-                                        ),
-                                        amount: 1
-                                    });
-                                }
-
-                                // Update the changedRC object
-                                changedRC.xChanged.push(player.x + bDIF.x);
-                                changedRC.yChanged.push(player.y + bDIF.y);
-                            }
-
-                        } else if (this.map.raster[player.y + bDIF.y][player.x + bDIF.x].block.texture_name !== 'dirt') {
+                        if (this.map.raster[player.y + bDIF.y][player.x + bDIF.x].block.texture_name !== 'dirt') {
                             /*
-                                This assumes the field is not a dirt block,
-                                but also not the currently selected one
+                                This assumes the field is not a dirt block
                             */
 
                             // Check if the block is only breakable by an admin
@@ -215,9 +146,7 @@ module.exports = function() {
                                 changedRC.yChanged.push(tmpChangedRC.yChanged);
 
                                 // If the block drops, give it to the player
-                                if (this.blockList.getBlock(
-                                    this.map.raster[player.y + bDIF.y][player.x + bDIF.x].block.texture_name
-                                ).drops) {
+                                if (this.map.raster[player.y + bDIF.y][player.x + bDIF.x].block.drops) {
 
                                     // Collect the block and place it in the inventory of the player
                                     player.changeResource({
@@ -251,7 +180,6 @@ module.exports = function() {
                                 changedRC.xChanged.push(player.x + bDIF.x);
                                 changedRC.yChanged.push(player.y + bDIF.y);
                             }
-
                         } else {
                             // This assumes the field in question is a dirt block
 
@@ -260,8 +188,8 @@ module.exports = function() {
 
                                 // Check if the resource is not an item
                                 if (!player.inventory[player.selectedBlock].block.item) {
-                                    // Place the currently selected block
 
+                                    // Place the currently selected block
                                     this.map.raster
                                     [player.y + bDIF.y]
                                     [player.x + bDIF.x].block = this.blockList.getBlock(
@@ -269,9 +197,7 @@ module.exports = function() {
                                     );
 
                                     // If it's an infinite block, don't remove from the inventory
-                                    if (!this.blockList.getBlock(
-                                        player.inventory[player.selectedBlock].block.texture_name
-                                    ).infinite) {
+                                    if (!player.inventory[player.selectedBlock].block.infinite) {
 
                                         // Remove one of the currently selected blocks
                                         player.changeResource({
@@ -365,8 +291,12 @@ module.exports = function() {
                                 but since we have that value already, we'll just pass it here for simplicity reasons
                             */
 
-                            if (player.inventory[player.selectedBlock].block.item) {
-                                var tmpChangedRC = player.inventory[player.selectedBlock].block.onreact({
+                            if (player.inventory[player.selectedBlock].block.item &&
+                                player.inventory[player.selectedBlock].block.texture_name != 'screwdriver')
+                            {
+
+                                var tmpChangedRC = player.inventory
+                                [player.selectedBlock].block.onreact({
                                     x: player.x + bDIF.x,
                                     y: player.y + bDIF.y,
                                     direction: modifier,
@@ -374,16 +304,19 @@ module.exports = function() {
                                     player: player,
                                     type: 'react'
                                 });
+
                             } else {
 
-                                // Interact with the block
-                                var tmpChangedRC = this.map.raster[player.y + bDIF.y][player.x + bDIF.x].block.onreact({
+                                var tmpChangedRC = this.map.raster
+                                [player.y + bDIF.y]
+                                [player.x + bDIF.x].block.onreact({
                                     x: player.x + bDIF.x,
                                     y: player.y + bDIF.y,
                                     game: this,
                                     player: player,
-                                    type: 'interact'
+                                    type: 'react'
                                 });
+
                             }
 
                             changedRC.xChanged.push(tmpChangedRC.xChanged);
@@ -426,13 +359,9 @@ module.exports = function() {
 
                             // Push detection on radius 1
 
-                            if (this.blockList.getBlock(
-                                this.map.raster[
-                                    player.y + bDIF.y
-                                ][
-                                    player.x + bDIF.x
-                                ].block.texture_name
-                            ).pushable) {
+                            if (this.map.raster
+                                [player.y + bDIF.y]
+                                [player.x + bDIF.x].block.pushable) {
 
                                 // Check if radius 2 on y axis is not out of map
                                 if (this.map.raster[player.y + (bDIF.y * 2)]) {
@@ -453,15 +382,15 @@ module.exports = function() {
                                                 }
                                             });
 
-                                            // Only push the block if no player is obsutructing the path
+                                            // Only push the block if no player is obstructing the path
                                             if (playersHere.length == 0) {
                                                 // Block push logic
                                                 this.map.raster
                                                 [player.y + (bDIF.y * 2)]
                                                 [player.x + (bDIF.x * 2)].block =
                                                 this.map.raster
-                                                [player.y + (bDIF.y * 1)]
-                                                [player.x + (bDIF.x * 1)].block
+                                                [player.y + bDIF.y]
+                                                [player.x + bDIF.x].block
 
                                                 // Call onpush method
                                                 var tmpChangedRC = this.map.raster
@@ -479,8 +408,8 @@ module.exports = function() {
 
                                                 // Reset old position of pushed block
                                                 this.map.raster
-                                                [player.y + (bDIF.y * 1)]
-                                                [player.x + (bDIF.x * 1)].block = this.blockList.getBlock('dirt');
+                                                [player.y + bDIF.y]
+                                                [player.x + bDIF.x].block = this.blockList.getBlock('dirt');
 
                                                 // Update the changed rows and columns object
                                                 if (!!(bDIF.y)) {
@@ -497,13 +426,10 @@ module.exports = function() {
                             }
 
                             // Traversable block detection
-                            if (this.blockList.getBlock(
-                                this.map.raster[
-                                    player.y + (bDIF.y * 1)
-                                ][
-                                    player.x + (bDIF.x * 1)
-                                ].block.texture_name
-                            ).traversable) {
+                            if (this.map.raster
+                                    [player.y + (bDIF.y * 1)]
+                                    [player.x + (bDIF.x * 1)].block.traversable)
+                            {
                                 // Move the player in the desired direction
                                 if (!!(bDIF.y)) {
                                     player.y = player.y + (bDIF.y);
@@ -557,6 +483,13 @@ module.exports = function() {
             return self.indexOf(item) === index;
         });
 
+        console.log(
+            this.map.raster[1][1].block
+        );
+        console.log(
+            this.map.raster[2][1].block
+        );
+
         // Notify the render method
         if (changedRC.xChanged.length > 0 || changedRC.yChanged.length) {
             if (this.render) {
@@ -607,9 +540,7 @@ module.exports = function() {
         // Overwrite each block
         for (var iy=0; iy < this.map.height; iy++) {
             for (var ix=0; ix < this.map.width; ix++) {
-                this.map.raster[iy][ix].block = this.blockList.getBlock(
-                    gameSave.map.raster[iy][ix].block.texture_name
-                );
+                this.map.raster[iy][ix].block = gameSave.map.raster[iy][ix].block;
             }
         }
 
@@ -692,8 +623,6 @@ module.exports = function() {
                 if (saveFile) {
                     this.players[i] = this.swapPlayerSave(saveFile, this.players[i]);
                 }
-
-                console.log(this.players[i]);
 
                 this.players[i].onchange = function(player) {
                     if (this.playersChanged) {

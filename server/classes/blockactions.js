@@ -11,6 +11,44 @@ module.exports = function() {
         };
 
         switch (options.block.texture_name) {
+            case 'door':
+                switch (options.type) {
+                    case 'react':
+                        return (function(options) {
+
+                            if (options.block.metadata) {
+                                // Toggle the open and traversable variable
+                                options.block.metadata.open = !options.block.metadata.open;
+
+                                // Toggle the texture_id
+                                if (options.block.metadata.open) {
+                                    options.block.texture_id = options.block.metadata.opentexture;
+                                    options.block.traversable = true;
+                                } else {
+                                    options.block.texture_id = options.block.metadata.closetexture;
+                                    options.block.traversable = false;
+                                }
+                            }
+
+                            // Update changedRC
+                            changedRC.xChanged.push(options.x);
+                            changedRC.yChanged.push(options.y);
+
+                            return changedRC;
+                        });
+                        break;
+                    case 'place':
+                        return (function(options) {
+
+                            options.block.metadata.open = false;
+
+                            return changedRC;
+                        });
+                        break;
+                    default:
+
+                }
+                break;
             case 'goldblock':
                 switch (options.type) {
                     case 'walkover':

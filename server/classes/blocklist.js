@@ -4,24 +4,25 @@ var Block   = require('./block.js');
 
 module.exports = function() {
 
-    // Load the textures.json file
-    this.textures = JSON.parse(
-        fs.readFileSync('./client/res/textures.json', 'utf8')
-        .split('textures = ')[1]
-    );
+    // Load the blocks.json file
+    this._rawBlockData = JSON.parse(fs.readFileSync('server/res/blocks.json', 'utf8'));
 
     // Contains all blocks as objects, with the keys set to the texture_name
     this.blockList = {};
 
     // Initialize each block and apply the defaults
-    if (this.textures) {
-        for (texture in this.textures) {
-            var blockData = this.textures[texture];
-                blockData.texture_name = texture;
+    if (this._rawBlockData) {
+        for (name in this._rawBlockData) {
 
-            var block = new Block(blockData, this);
-            this.blockList[texture] = block;
+            // This is a dirty hack to copy the blockdata without reference
+            var blockData = this._rawBlockData[name];
+            blockData.block.texture_name = name;
+
+            this.blockList[name] = blockData;
+            this.blockList[name].block = (new Block(blockData.block, this));
         }
+    } else {
+        return false;
     }
 
     /*
@@ -33,21 +34,13 @@ module.exports = function() {
     this.getBlock = function(block_ident) {
         if (typeof block_ident == 'string') {
 
-            var copy = {};
-            for (var prop in this.blockList[block_ident]) {
-                copy[prop] = this.blockList[block_ident][prop];
-            }
-            return copy;
+            return oCopy(this.blockList[block_ident].block);
 
         } else if (typeof block_ident == 'number') {
 
-            var copy = {};
             for (var block in this.blockList) {
-                if (block.texture_id === block_ident) {
-                    for (var prop in this.blockList[block]) {
-                        copy[prop] = this.blockList[block][prop];
-                    }
-
+                if (block.block.texture_id === block_ident) {
+                    return oCopy(this.blockList[block_ident].block);
                     break;
                 }
             }
@@ -56,5 +49,42 @@ module.exports = function() {
         } else {
             return false;
         }
+    }
+
+    /*
+        Get a list of all recipes
+    */
+    this.getRecipes = function() {
+        return Object.keys(this.blockList).filter(function(key) {
+            if (this.blockList[key].crafting) {
+                return true;
+            }
+        }.bind(this)).map(function(key) {
+            return {
+                result: this.getBlock(this.blockList[key].block.texture_name),
+                requirements: this.blockList[key].crafting.requirements,
+                amount: this.blockList[key].crafting.amount,
+                options: this.blockList[key].crafting.options
+            }
+        }.bind(this));
+    }
+
+    /*
+        Recursively copy an object without reference
+    */
+    var oCopy = function(object) {
+        var copy = {};
+        Object.keys(object).map(function(key) {
+            if (typeof object[key] != 'function') {
+                if (typeof object[key] != 'object') {
+                    copy[key] = JSON.parse(JSON.stringify(object[key]));
+                } else {
+                    copy[key] = oCopy(object[key]);
+                }
+            } else {
+                copy[key] = object[key];
+            }
+        });
+        return copy;
     }
 }
