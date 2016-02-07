@@ -2,5 +2,4 @@ Portal gun (Use the custom block metadata to store portal location)
 Portal blocks (Use the metadata to store the owner and the other portal)
 Make the gun shoot through portals
 Transfer items to the killer when a player get's killed
-Admin Console, Seperate file, via npm-prompt
 Rearrange items in the inventory (drag and drop maybe?)

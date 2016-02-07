@@ -13,6 +13,7 @@ var CommandsController  = new (require('./commandscontroller.js'))();
 // Some constants
 var ControlPort         = 7217;
 var GamePort            = 7218;
+var ConsolePort         = 7219;
 var DefaultMapSize      = 15;
 
 // Delete all player files
@@ -111,6 +112,7 @@ app.listen(ControlPort, function() {
 
 
 var GameSocket = WebSocket.createServer(function (conn) {
+
     // Extract a permaKey if it's set
     var cookies = conn.headers.cookie;
 	var permaKey = undefined;
@@ -274,3 +276,32 @@ Game.playersChanged = function(players) {
 */
 CommandsController.setup(Game, Chat, GameSocket);
 CommandsController.startRegistering();
+
+/*
+    Admin Console
+*/
+var consoleKey = undefined;
+WebSocket.createServer(function(conn) {
+    if (!consoleKey) {
+        consoleKey = Sha1.hash(
+            (Array.apply(null, (new Array(8))).map(function() {
+                return Math.random()*64;
+            })).join('')
+        )
+        conn.sendText(consoleKey);
+        conn.on('text', function(data) {
+            data = JSON.parse(data);
+            if (data.key == consoleKey) {
+
+                Chat.write(
+                    data.command,
+                    Chat.serverUser
+                );
+
+            }
+        });
+        conn.on('close', function() {
+            consoleKey = undefined;
+        });
+    }
+}).listen(ConsolePort);

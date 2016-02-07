@@ -68,14 +68,16 @@ module.exports = function() {
     }
 
     this.serverWrite = function(message) {
-        this.write(message, {
-            key: 'SERVER',
-            nickname: 'SERVER',
-            x: undefined,
-            y: undefined,
-            id: 'SERVER',
-            admin: true
-        });
+        this.write(message, this.serverUser);
+    };
+
+    this.serverUser = {
+        key: 'SERVER',
+        nickname: 'SERVER',
+        x: undefined,
+        y: undefined,
+        id: 'SERVER',
+        admin: true
     };
 
     this.clear = function() {
