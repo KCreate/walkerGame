@@ -18,13 +18,85 @@ module.exports = function() {
 
                             console.log(options.block.metadata);
 
+                            // Check if the portal is connected
+                            if (typeof options.block.metadata.secondPortalCoordinates.x !== 'undefined' &&
+                                options.block.metadata.secondPortalCoordinates.x !== null &&
+                                typeof options.block.metadata.secondPortalCoordinates.y !== 'undefined' &&
+                                    options.block.metadata.secondPortalCoordinates.y !== null) {
+
+                                // Update changedRC
+                                changedRC.xChanged.push(options.player.x);
+                                changedRC.yChanged.push(options.player.y);
+
+                                // Update locations before the portal entry
+                                changedRC.xChanged.push(options.player.x - options.game.bDIF[options.direction].x);
+                                changedRC.yChanged.push(options.player.y - options.game.bDIF[options.direction].y);
+                                // Teleport the player
+                                options.player.x = options.block.metadata.secondPortalCoordinates.x;
+                                options.player.y = options.block.metadata.secondPortalCoordinates.y;
+
+                                // Update changedRC
+                                changedRC.xChanged.push(options.player.x);
+                                changedRC.yChanged.push(options.player.y);
+                            }
+
                             return changedRC;
                         }.bind(this));
                         break;
                     case 'remove':
                         return (function(options) {
 
-                            console.log(options.block.metadata);
+                            // Check if the portal is connected
+                            if (typeof options.block.metadata.secondPortalCoordinates.x !== 'undefined' &&
+                                options.block.metadata.secondPortalCoordinates.x !== null &&
+                                typeof options.block.metadata.secondPortalCoordinates.y !== 'undefined' &&
+                                    options.block.metadata.secondPortalCoordinates.y !== null) {
+
+                                // Check if the block is a portal
+                                if (options.game.map.raster
+                                [options.block.metadata.secondPortalCoordinates.y]
+                                [options.block.metadata.secondPortalCoordinates.x].block.texture_name == 'portalhole') {
+
+                                    // Remove the secondPortalCoordinates
+                                    options.game.map.raster
+                                    [options.block.metadata.secondPortalCoordinates.y]
+                                    [options.block.metadata.secondPortalCoordinates.x].block.metadata.secondPortalCoordinates = {
+                                        x: null,
+                                        y: null
+                                    };
+
+                                    // Call the onremove handler
+                                    options.game.map.raster
+                                    [options.block.metadata.secondPortalCoordinates.y]
+                                    [options.block.metadata.secondPortalCoordinates.x].block.onremove({
+                                        x: options.block.metadata.secondPortalCoordinates.x,
+                                        y: options.block.metadata.secondPortalCoordinates.y,
+                                        game: options.game,
+                                        player: options.player,
+                                        type: 'remove'
+                                    });
+
+                                    // Replace the block with dirt
+                                    options.game.map.raster
+                                    [options.block.metadata.secondPortalCoordinates.y]
+                                    [options.block.metadata.secondPortalCoordinates.x].block = this.blockList.getBlock('dirt');
+
+                                    // Call the dirt onplace handler
+                                    options.game.map.raster
+                                    [options.block.metadata.secondPortalCoordinates.y]
+                                    [options.block.metadata.secondPortalCoordinates.x].block.onplace({
+                                        x: options.block.metadata.secondPortalCoordinates.x,
+                                        y: options.block.metadata.secondPortalCoordinates.y,
+                                        game: options.game,
+                                        player: options.player,
+                                        type: 'place'
+                                    });
+
+                                    // Update the changedRC
+                                    changedRC.xChanged.push(options.block.metadata.secondPortalCoordinates.x);
+                                    changedRC.yChanged.push(options.block.metadata.secondPortalCoordinates.y);
+                                }
+                            }
 
                             return changedRC;
                         }.bind(this));
@@ -43,6 +115,7 @@ module.exports = function() {
                                 [options.x].block.texture_name == 'dirt') {
 
                                 var portalHole = this.blockList.getBlock('portalhole');
+                                portalHole.metadata.ownerKey = options.player.key;
 
                                 // Choose the right portal
                                 if (options.block.metadata.lastPortalType == null ||
@@ -69,18 +142,80 @@ module.exports = function() {
 
                                 // Add it to the placed Portals
                                 options.block.metadata.placedPortals.push({
-                                    block: portalHole,
-                                    coords: {
-                                        x: options.x,
-                                        y: options.y
-                                    }
+                                    x: options.x,
+                                    y: options.y
                                 });
+
+                                // Add a remove event to the onLeaveHandler of the player
+                                options.player.onLeaveHandlers.push(function(player) {
+
+                                    // Search for the portalgun
+                                    var portalgun = player.inventory.find(function(item) {
+                                        if (item.block.texture_name == 'portalgun') {
+                                            return true;
+                                        }
+                                    });
+
+                                    //
+                                    if (portalgun) {
+                                        portalgun = portalgun.block;
+                                        portalgun.metadata.placedPortals.forEach(function(coord) {
+                                            // Replace call the onremove handler of the portal
+                                            options.game.map.raster[coord.y][coord.x].block.onremove({
+                                                x: coord.x,
+                                                y: coord.y,
+                                                game: options.game,
+                                                player: player,
+                                                type: 'place'
+                                            });
+
+                                            // Replace the block with dirt
+                                            options.game.map.raster[coord.y][coord.x].block = this.blockList.getBlock('dirt');
+
+                                            // Call the dirt onplace handler
+                                            options.game.map.raster[coord.y][coord.x].block.onplace({
+                                                x: coord.x,
+                                                y: coord.y,
+                                                game: options.game,
+                                                player: player,
+                                                type: 'place'
+                                            });
+                                        }.bind(this));
+                                    }
+                                }.bind(this));
 
                                 // Remove old Portals
                                 if (options.block.metadata.placedPortals.length > 2) {
-                                    console.log(options.block.metadata.placedPortals.map(function(item) {
-                                        return item.coords;
-                                    }));
+                                    var x = options.block.metadata.placedPortals[0].x;
+                                    var y = options.block.metadata.placedPortals[0].y;
+
+                                    // Replace call the onremove handler of the portal
+                                    options.game.map.raster[y][x].block.onremove({
+                                        x: x,
+                                        y: y,
+                                        game: options.game,
+                                        player: options.player,
+                                        type: 'place'
+                                    });
+
+                                    // Replace the block with dirt
+                                    options.game.map.raster[y][x].block = this.blockList.getBlock('dirt');
+
+                                    // Call the dirt onplace handler
+                                    options.game.map.raster[y][x].block.onplace({
+                                        x: x,
+                                        y: y,
+                                        game: options.game,
+                                        player: options.player,
+                                        type: 'place'
+                                    });
+
+                                    // Update changedRC
+                                    changedRC.xChanged.push(x);
+                                    changedRC.yChanged.push(y);
+
+                                    // Remove it from the array
+                                    options.block.metadata.placedPortals = options.block.metadata.placedPortals.slice(1,3);
                                 }
 
                                 // Place the portal
@@ -88,10 +223,42 @@ module.exports = function() {
                                 [options.y]
                                 [options.x].block = portalHole;
 
+                                // Connect the two portals
+                                if (options.block.metadata.placedPortals.length == 2) {
+
+                                    // Select the portals
+                                    var p1 = options.game.map.raster
+                                                [options.block.metadata.placedPortals[0].y]
+                                                [options.block.metadata.placedPortals[0].x].block;
+                                    var p2 = options.game.map.raster
+                                                [options.block.metadata.placedPortals[1].y]
+                                                [options.block.metadata.placedPortals[1].x].block;
+
+                                    if (p1.texture_name == 'portalhole' &&
+                                        p2.texture_name == 'portalhole') {
+
+                                        // Check if the portals are owner by this player
+                                        if (p1.metadata.ownerKey == options.player.key &&
+                                            p2.metadata.ownerKey == options.player.key) {
+
+                                            // Check if the blocks are portals
+                                            p1.metadata.secondPortalCoordinates.x =
+                                            options.block.metadata.placedPortals[1].x;
+                                            p1.metadata.secondPortalCoordinates.y =
+                                            options.block.metadata.placedPortals[1].y;
+
+                                            p2.metadata.secondPortalCoordinates.x =
+                                            options.block.metadata.placedPortals[0].x;
+                                            p2.metadata.secondPortalCoordinates.y =
+                                            options.block.metadata.placedPortals[0].y;
+                                        }
+                                    }
+                                }
+
+                                // Call the portal onplace handler
                                 portalHole.onplace({
                                     x: options.x,
                                     y: options.y,
-                                    direction: options.direction,
                                     game: options.game,
                                     player: options.player,
                                     type: 'place'
@@ -100,7 +267,6 @@ module.exports = function() {
                                 // Update changedRC
                                 changedRC.xChanged.push(options.x);
                                 changedRC.yChanged.push(options.y);
-
                             }
 
                             return changedRC;
@@ -285,55 +451,95 @@ module.exports = function() {
 
                         return (function(options) {
 
+                            var bDIF = options.game.bDIF[options.direction];
+
                             // Check if the player has ammo
                             var ammo = options.player.inventory.filter(function(item) {
                                 if (item.block.texture_name == 'ammo') {
                                     return true;
                                 }
                             });
-                            if (ammo[0].amount > 0) {
-                                options.game.bDIF[options.direction];
+                            if (ammo.length > 0) {
+                                if (ammo[0].amount > 0) {
+                                    var bulletInfo = {
+                                        x: options.player.x,
+                                        y: options.player.y,
+                                        damageMultiplier: 1,
+                                        block: options.game.blockList.getBlock('ammo')
+                                    };
 
-                                var bulletInfo = {
-                                    x: options.player.x,
-                                    y: options.player.y,
-                                    damageMultiplier: 1,
-                                    block: options.game.blockList.getBlock('ammo')
-                                };
+                                    var shooting = function() {
 
-                                var shooting = function() {
-
-                                    // Check if the block is not out of map
-                                    if (options.game.map.raster
-                                            [bulletInfo.y + bDIF.y] &&
-                                        options.game.map.raster
-                                            [bulletInfo.y + bDIF.y]
-                                            [bulletInfo.x + bDIF.x])
-                                    {
-                                        // Check if there is a player
-                                        var playersAtThisPos = options.game.players.filter(function(player) {
-                                            if (player) {
-                                                if (player.x == bulletInfo.x + bDIF.x &&
-                                                    player.y == bulletInfo.y + bDIF.y) {
-                                                    return true;
-                                                }
-                                            }
-                                        });
-
-                                        // Check if there is a player
-                                        if (playersAtThisPos.length > 0) {
-
-                                            // Damage the player
-                                            playersAtThisPos.forEach(function(item) {
-                                                console.log(item);
-                                                var health_effects = bulletInfo.block.health_effects;
-                                                if (health_effects) {
-                                                    item.impactHealth(
-                                                        -((health_effects.playerDamage || 10) * bulletInfo.damageMultiplier)
-                                                    );
+                                        // Check if the block is not out of map
+                                        if (options.game.map.raster
+                                                [bulletInfo.y + bDIF.y] &&
+                                            options.game.map.raster
+                                                [bulletInfo.y + bDIF.y]
+                                                [bulletInfo.x + bDIF.x])
+                                        {
+                                            // Check if there is a player
+                                            var playersAtThisPos = options.game.players.filter(function(player) {
+                                                if (player) {
+                                                    if (player.x == bulletInfo.x + bDIF.x &&
+                                                        player.y == bulletInfo.y + bDIF.y) {
+                                                        return true;
+                                                    }
                                                 }
                                             });
 
+                                            // Check if there is a player
+                                            if (playersAtThisPos.length > 0) {
+
+                                                // Damage the player
+                                                playersAtThisPos.forEach(function(item) {
+                                                    console.log(item);
+                                                    var health_effects = bulletInfo.block.health_effects;
+                                                    if (health_effects) {
+                                                        item.impactHealth(
+                                                            -((health_effects.playerDamage || 10) * bulletInfo.damageMultiplier)
+                                                        );
+                                                    }
+                                                });
+
+                                                // Reset the field
+                                                options.game.map.topographies
+                                                        [bulletInfo.y]
+                                                        [bulletInfo.x].block = undefined;
+
+                                                // Stop the loop
+                                                console.log('removing the bullet');
+                                                clearInterval(shootingInterval);
+
+                                            } else {
+
+                                                // Check if the block is traversable
+                                                if (!options.game.map.raster
+                                                        [bulletInfo.y + bDIF.y]
+                                                        [bulletInfo.x + bDIF.x].block.traversable)
+                                                {
+                                                    // Check if the block reflects
+                                                    if (options.game.map.raster
+                                                            [bulletInfo.y + bDIF.y]
+                                                            [bulletInfo.x + bDIF.x].block.redirectsBullets) {
+
+                                                        bDIF.x = -bDIF.x;
+                                                        bDIF.y = -bDIF.y;
+
+                                                    } else {
+
+                                                        // Reset the field
+                                                        options.game.map.topographies
+                                                                [bulletInfo.y]
+                                                                [bulletInfo.x].block = undefined;
+
+                                                        // Stop the loop
+                                                        console.log('removing the bullet');
+                                                        clearInterval(shootingInterval);
+                                                    }
+                                                }
+                                            }
+
+                                        } else {
                                             // Reset the field
                                             options.game.map.topographies
                                                     [bulletInfo.y]
@@ -342,83 +548,45 @@ module.exports = function() {
                                             // Stop the loop
                                             console.log('removing the bullet');
                                             clearInterval(shootingInterval);
-
-                                        } else {
-
-                                            // Check if the block is traversable
-                                            if (!options.game.map.raster
-                                                    [bulletInfo.y + bDIF.y]
-                                                    [bulletInfo.x + bDIF.x].block.traversable)
-                                            {
-                                                // Check if the block reflects
-                                                if (options.game.map.raster
-                                                        [bulletInfo.y + bDIF.y]
-                                                        [bulletInfo.x + bDIF.x].block.redirectsBullets) {
-
-                                                    bDIF.x = -bDIF.x;
-                                                    bDIF.y = -bDIF.y;
-
-                                                } else {
-
-                                                    // Reset the field
-                                                    options.game.map.topographies
-                                                            [bulletInfo.y]
-                                                            [bulletInfo.x].block = undefined;
-
-                                                    // Stop the loop
-                                                    console.log('removing the bullet');
-                                                    clearInterval(shootingInterval);
-                                                }
-                                            }
                                         }
 
-                                    } else {
                                         // Reset the field
                                         options.game.map.topographies
                                                 [bulletInfo.y]
                                                 [bulletInfo.x].block = undefined;
 
-                                        // Stop the loop
-                                        console.log('removing the bullet');
-                                        clearInterval(shootingInterval);
+                                        // If the timer wasn't cancelled, move the bullet
+                                        if (shootingInterval['0'] === undefined) {
+                                            // Update the new field
+                                            options.game.map.topographies
+                                                [bulletInfo.y + bDIF.y]
+                                                [bulletInfo.x + bDIF.x].block = options.game.blockList.getBlock('ammo');
+
+                                            // Increase the damage by 20% per block traveled
+                                            bulletInfo.damageMultiplier *= 1.1;
+
+                                            // Update the position
+                                            bulletInfo.x += bDIF.x;
+                                            bulletInfo.y += bDIF.y;
+                                        }
+
+                                        // Call the render method of the game
+                                        if (options.game.render) {
+                                            options.game.render(options.game, {
+                                                xChanged: [bulletInfo.x - bDIF.x, bulletInfo.x],
+                                                yChanged: [bulletInfo.y - bDIF.y, bulletInfo.y]
+                                            });
+                                        }
                                     }
+                                    var shootingInterval = setInterval(shooting, 80);
 
-                                    // Reset the field
-                                    options.game.map.topographies
-                                            [bulletInfo.y]
-                                            [bulletInfo.x].block = undefined;
 
-                                    // If the timer wasn't cancelled, move the bullet
-                                    if (shootingInterval['0'] === undefined) {
-                                        // Update the new field
-                                        options.game.map.topographies
-                                            [bulletInfo.y + bDIF.y]
-                                            [bulletInfo.x + bDIF.x].block = options.game.blockList.getBlock('ammo');
-
-                                        // Increase the damage by 20% per block traveled
-                                        bulletInfo.damageMultiplier *= 1.1;
-
-                                        // Update the position
-                                        bulletInfo.x += bDIF.x;
-                                        bulletInfo.y += bDIF.y;
-                                    }
-
-                                    // Call the render method of the game
-                                    if (options.game.render) {
-                                        options.game.render(options.game, {
-                                            xChanged: [bulletInfo.x - bDIF.x, bulletInfo.x],
-                                            yChanged: [bulletInfo.y - bDIF.y, bulletInfo.y]
-                                        });
-                                    }
+                                    // Remove on shell from the inventory
+                                    options.player.changeResource({
+                                        block: options.game.blockList.getBlock(ammo[0].block.texture_name),
+                                        amount: -1
+                                    });
                                 }
-                                var shootingInterval = setInterval(shooting, 80);
-
-
-                                // Remove on shell from the inventory
-                                options.player.changeResource({
-                                    block: options.game.blockList.getBlock(ammo[0].block.texture_name),
-                                    amount: -1
-                                });
                             }
 
                             return changedRC;

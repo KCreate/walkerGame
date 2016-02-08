@@ -386,7 +386,7 @@
                     "y": null
                 },
                 "lastPortalType": null,
-                "owner": null,
+                "ownerKey": null,
                 "placedPortals": []
             }
         },

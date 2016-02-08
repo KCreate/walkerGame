@@ -133,6 +133,9 @@ module.exports = function(key, id) {
         }
     }
 
+    // Callbacks when the player leaves the game
+    this.onLeaveHandlers = [];
+
     // Callback for subscribers
     this.onchange = undefined;
 }

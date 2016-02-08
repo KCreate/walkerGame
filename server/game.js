@@ -424,11 +424,13 @@ module.exports = function() {
                                     var tmpChangedRC = this.map.raster[player.y][player.x].block.onwalkover({
                                         x: player.x,
                                         y: player.y,
+                                        direction: bDIF.direction,
                                         game: this,
                                         player: player,
                                         type: 'walkover'
                                     });
 
+                                    // Update changedRC
                                     changedRC.xChanged.push(tmpChangedRC.xChanged);
                                     changedRC.yChanged.push(tmpChangedRC.yChanged);
                                 }
@@ -452,9 +454,9 @@ module.exports = function() {
                 break;
         }
 
-        // Flatten the array as far as possible
-        changedRC.xChanged = [].concat.apply([], changedRC.xChanged);
-        changedRC.yChanged = [].concat.apply([], changedRC.yChanged);
+        // Flatten the array for two layers
+        changedRC.xChanged = [].concat.apply([], [].concat.apply([], changedRC.xChanged));
+        changedRC.yChanged = [].concat.apply([], [].concat.apply([], changedRC.yChanged));
 
         // Remove duplicates from the changedRC object
         changedRC.xChanged = changedRC.xChanged.filter(function(item, index, self) {
@@ -637,6 +639,13 @@ module.exports = function() {
                     // Save the state of the player as a file
                     this.savePlayerState(this.players[i]);
 
+                    // Call all the onLeaveHandlers
+                    if (this.players[i].onLeaveHandlers.length > 0) {
+                        this.players[i].onLeaveHandlers.forEach(function(cb) {
+                            cb(this.players[i]);
+                        }.bind(this));
+                    }
+
                     // Remove it from memory
                     this.players[i] = undefined;
                     playerRemoved = true;
@@ -705,14 +714,13 @@ module.exports = function() {
             player.masked = playerSave.masked;
 
             // We need to carry the inventory over differently, because of the blockactions
-            player.inventory = [];
-            playerSave.inventory.forEach(function(item) {
-                player.inventory.push({
+            player.inventory = playerSave.inventory.map(function(item) {
+                return {
                     block: this.blockList.getBlock(
                         item.block.texture_name
                     ),
                     amount: item.amount
-                });
+                };
             }.bind(this));
         }
 

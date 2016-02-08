@@ -35,47 +35,32 @@ module.exports = function(options, blockList) {
 
     // Called after the block was placed
     this.onplace = function(event) {
-        event.block = this;
-        var action = blockActions.getAction(event);
-
-        // Actions return a changedRC object
-        return action(event);
+        return this._eventHandler(event);
     }
 
     // Called before the block get's removed
     this.onremove = function(event) {
-        event.block = this;
-        var action = blockActions.getAction(event);
-
-        // Actions return a changedRC object
-        return action(event);
+        return this._eventHandler(event);
     }
 
     // Called when a player interacts with the block
     this.onreact = function(event) {
-        event.block = this;
-        var action = blockActions.getAction(event);
-
-        // Actions return a changedRC object
-        return action(event);
+        return this._eventHandler(event);
     }
 
     // Called after the block get's pushed is already is at the new position
     this.onpush = function(event) {
-        event.block = this;
-        var action = blockActions.getAction(event);
-
-        // Actions return a changedRC object
-        return action(event);
+        return this._eventHandler(event);
     }
 
     // Called after a player gets on top of the block
     this.onwalkover = function(event) {
-        event.block = this;
-        var action = blockActions.getAction(event);
+        return this._eventHandler(event);
+    }
 
-        // Actions return a changedRC object
-        return action(event);
+    this._eventHandler = function(event) {
+        event.block = this;
+        return blockActions.getAction(event)(event);
     }
 
     // Init method
