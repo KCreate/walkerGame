@@ -6,6 +6,29 @@ var Crafting        = new (require('./classes/crafting.js'))(blockList)
 
 // Exports
 module.exports = function() {
+    this.bDIF = {
+        up: {
+            x: 0,
+            y: -1,
+            direction: 'up'
+        },
+        right: {
+            x: 1,
+            y: 0,
+            direction: 'right'
+        },
+        down: {
+            x: 0,
+            y: 1,
+            direction: 'down'
+        },
+        left: {
+            x: -1,
+            y: 0,
+            direction: 'left'
+        }
+    };
+
     this.Crafting = Crafting;
     this.blockList = blockList;
 
@@ -64,28 +87,7 @@ module.exports = function() {
         };
 
         // Get the block difference here
-        var bDIF = ({
-            up: {
-                x: 0,
-                y: -1,
-                direction: 'up'
-            },
-            right: {
-                x: 1,
-                y: 0,
-                direction: 'right'
-            },
-            down: {
-                x: 0,
-                y: 1,
-                direction: 'down'
-            },
-            left: {
-                x: -1,
-                y: 0,
-                direction: 'left'
-            }
-        })[modifier];
+        var bDIF = this.bDIF[(modifier || control)];
 
         switch (control) {
             case 'place_block':
@@ -328,27 +330,6 @@ module.exports = function() {
                 break;
             default:
 
-                // Get the block difference here
-                var bDIF = ({
-                    up: {
-                        x: 0,
-                        y: -1
-                    },
-                    right: {
-                        x: 1,
-                        y: 0
-                    },
-                    down: {
-                        x: 0,
-                        y: 1
-                    },
-                    left: {
-                        x: -1,
-                        y: 0
-                    }
-                })[control];
-
-
                 // Check for a valid bDIF object
                 if (bDIF) {
                     // Check for width map edge collisions
@@ -482,13 +463,6 @@ module.exports = function() {
         changedRC.yChanged = changedRC.yChanged.filter(function(item, index, self) {
             return self.indexOf(item) === index;
         });
-
-        console.log(
-            this.map.raster[1][1].block
-        );
-        console.log(
-            this.map.raster[2][1].block
-        );
 
         // Notify the render method
         if (changedRC.xChanged.length > 0 || changedRC.yChanged.length) {

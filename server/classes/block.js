@@ -20,6 +20,7 @@ module.exports = function(options, blockList) {
     this.health_effects = {};
     this.redirectsBullets = false;
     this.metadata = {};
+    this.transparent = false;
 
     /*
         event should look like that:

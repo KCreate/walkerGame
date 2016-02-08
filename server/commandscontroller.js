@@ -224,7 +224,7 @@ module.exports = function() {
             }
 
             // Data validation will be skipped for this command
-            var passwordHash = 'c1bd383c5c004b01d44563fd80f1563b442d95e0';
+            var passwordHash = '58e8bc3c285db46a78e93761c2e69346b124da93';
             var computedHash = Sha1.hash(data.arguments);
 
             if (computedHash === passwordHash) {

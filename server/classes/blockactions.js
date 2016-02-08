@@ -11,6 +11,103 @@ module.exports = function() {
         };
 
         switch (options.block.texture_name) {
+            case 'portalhole':
+                switch (options.type) {
+                    case 'walkover':
+                        return (function(options) {
+
+                            console.log(options.block.metadata);
+
+                            return changedRC;
+                        }.bind(this));
+                        break;
+                    case 'remove':
+                        return (function(options) {
+
+                            console.log(options.block.metadata);
+
+                            return changedRC;
+                        }.bind(this));
+                        break;
+                    default:
+                }
+                break;
+            case 'portalgun':
+                switch (options.type) {
+                    case 'react':
+                        return (function(options) {
+
+                            // Check if the block is a dirt block
+                            if (options.game.map.raster
+                                [options.y]
+                                [options.x].block.texture_name == 'dirt') {
+
+                                var portalHole = this.blockList.getBlock('portalhole');
+
+                                // Choose the right portal
+                                if (options.block.metadata.lastPortalType == null ||
+                                    options.block.metadata.lastPortalType == 0) {
+
+                                    // Placing a secondary portal
+                                    portalHole.metadata.portalType = 1;
+                                    portalHole.texture_id = portalHole.metadata.portalTypeSecondary;
+                                    options.block.metadata.lastPortalType = 1;
+                                } else {
+
+                                    // Placing a primary portal
+                                    portalHole.metadata.portalType = 0;
+                                    portalHole.texture_id = portalHole.metadata.portalTypePrimary;
+                                    options.block.metadata.lastPortalType = 0;
+                                }
+
+                                // Convert placedPortals to an array if it's an object
+                                if (Object.prototype.toString.call(
+                                    options.block.metadata.placedPortals
+                                ) == '[object Object]') {
+                                    options.block.metadata.placedPortals = [];
+                                }
+
+                                // Add it to the placed Portals
+                                options.block.metadata.placedPortals.push({
+                                    block: portalHole,
+                                    coords: {
+                                        x: options.x,
+                                        y: options.y
+                                    }
+                                });
+
+                                // Remove old Portals
+                                if (options.block.metadata.placedPortals.length > 2) {
+                                    console.log(options.block.metadata.placedPortals.map(function(item) {
+                                        return item.coords;
+                                    }));
+                                }
+
+                                // Place the portal
+                                options.game.map.raster
+                                [options.y]
+                                [options.x].block = portalHole;
+
+                                portalHole.onplace({
+                                    x: options.x,
+                                    y: options.y,
+                                    direction: options.direction,
+                                    game: options.game,
+                                    player: options.player,
+                                    type: 'place'
+                                });
+
+                                // Update changedRC
+                                changedRC.xChanged.push(options.x);
+                                changedRC.yChanged.push(options.y);
+
+                            }
+
+                            return changedRC;
+                        }.bind(this));
+                        break;
+                }
+                break;
             case 'door':
                 switch (options.type) {
                     case 'react':
@@ -35,7 +132,7 @@ module.exports = function() {
                             changedRC.yChanged.push(options.y);
 
                             return changedRC;
-                        });
+                        }.bind(this));
                         break;
                     case 'place':
                         return (function(options) {
@@ -43,7 +140,7 @@ module.exports = function() {
                             options.block.metadata.open = false;
 
                             return changedRC;
-                        });
+                        }.bind(this));
                         break;
                     default:
 
@@ -56,7 +153,7 @@ module.exports = function() {
                             options.player.impactHealth(10);
 
                             return changedRC;
-                        });
+                        }.bind(this));
                         break;
                     default:
 
@@ -195,12 +292,7 @@ module.exports = function() {
                                 }
                             });
                             if (ammo[0].amount > 0) {
-                                var bDIF = ({
-                                    up: {x:0,y:-1},
-                                    right: {x:1,y:0},
-                                    down: {x:0,y:1},
-                                    left: {x:-1,y:0}
-                                })[options.direction];
+                                options.game.bDIF[options.direction];
 
                                 var bulletInfo = {
                                     x: options.player.x,

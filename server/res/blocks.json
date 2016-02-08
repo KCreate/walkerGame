@@ -170,7 +170,8 @@
         "block": {
             "texture_id": 18,
             "texture_ff_name": "Glass Pane",
-            "drops": false
+            "drops": false,
+            "transparent": true
         },
         "crafting": {
             "requirements": [
@@ -186,7 +187,8 @@
         "block": {
             "texture_id": 19,
             "texture_ff_name": "Iron Bar",
-            "stable": true
+            "stable": true,
+            "transparent": true
         },
         "crafting": {
             "requirements": [
@@ -366,6 +368,54 @@
             "texture_id": 32,
             "texture_ff_name": "Screwdriver",
             "item": true
+        }
+    },
+    "portalgun": {
+        "block": {
+            "texture_id": 33,
+            "texture_ff_name": "Portal Gun",
+            "item": true,
+            "drops": false,
+            "metadata": {
+                "lastPrimaryPortalCoordinates": {
+                    "x": null,
+                    "y": null
+                },
+                "lastSecondaryPortalCoordinates": {
+                    "x": null,
+                    "y": null
+                },
+                "lastPortalType": null,
+                "owner": null,
+                "placedPortals": []
+            }
+        },
+        "crafting": {
+            "requirements": [
+                "ironblock","goldblock","ironbar",
+                "ironbar","diamondblock","ironbar",
+                "ironblock","goldblock","ironbar"
+            ],
+            "amount": 1,
+            "options": {}
+        }
+    },
+    "portalhole": {
+        "block": {
+            "texture_id": 34,
+            "texture_ff_name": "Portal Hole",
+            "drops": false,
+            "traversable": true,
+            "transparent": true,
+            "metadata": {
+                "portalType": 0,
+                "portalTypePrimary": 34,
+                "portalTypeSecondary": 35,
+                "secondPortalCoordinates": {
+                    "x": null,
+                    "y": null
+                }
+            }
         }
     }
 }

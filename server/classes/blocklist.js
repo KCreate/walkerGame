@@ -73,18 +73,22 @@ module.exports = function() {
         Recursively copy an object without reference
     */
     var oCopy = function(object) {
-        var copy = {};
-        Object.keys(object).map(function(key) {
-            if (typeof object[key] != 'function') {
-                if (typeof object[key] != 'object') {
-                    copy[key] = JSON.parse(JSON.stringify(object[key]));
+        if (typeof object == 'object' && object !== null && object !== undefined) {
+            var copy = {};
+            Object.keys(object).map(function(key) {
+                if (typeof object[key] != 'function') {
+                    if (typeof object[key] != 'object') {
+                        copy[key] = JSON.parse(JSON.stringify(object[key]));
+                    } else {
+                        copy[key] = oCopy(object[key]);
+                    }
                 } else {
-                    copy[key] = oCopy(object[key]);
+                    copy[key] = object[key];
                 }
-            } else {
-                copy[key] = object[key];
-            }
-        });
-        return copy;
+            });
+            return copy;
+        } else {
+            return object;
+        }
     }
 }

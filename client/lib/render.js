@@ -91,6 +91,16 @@ function GCRender(data) {
                     drawHandler.setMapData(data.map);
                 }
 
+                // If the block is transparent draw the dirt texture first
+                console.log(data.map.raster[y][x].block);
+                if (data.map.raster[y][x].block.transparent) {
+                    drawHandler.drawTexture(
+                        8,
+                        x,
+                        y
+                    );
+                }
+
                 // Draw the ground texture
                 drawHandler.drawTexture(
                     texture,
