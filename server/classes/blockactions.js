@@ -16,8 +16,6 @@ module.exports = function() {
                     case 'walkover':
                         return (function(options) {
 
-                            console.log(options.block.metadata);
-
                             // Check if the portal is connected
                             if (typeof options.block.metadata.secondPortalCoordinates.x !== 'undefined' &&
                                 options.block.metadata.secondPortalCoordinates.x !== null &&
@@ -470,12 +468,17 @@ module.exports = function() {
 
                                     var shooting = function() {
 
+                                        var changedRC = {
+                                            xChanged: [],
+                                            yChanged: []
+                                        };
+
                                         // Check if the block is not out of map
                                         if (options.game.map.raster
-                                                [bulletInfo.y + bDIF.y] &&
+                                            [bulletInfo.y + bDIF.y] &&
                                             options.game.map.raster
-                                                [bulletInfo.y + bDIF.y]
-                                                [bulletInfo.x + bDIF.x])
+                                            [bulletInfo.y + bDIF.y]
+                                            [bulletInfo.x + bDIF.x])
                                         {
                                             // Check if there is a player
                                             var playersAtThisPos = options.game.players.filter(function(player) {
@@ -512,7 +515,7 @@ module.exports = function() {
 
                                             } else {
 
-                                                // Check if the block is traversable
+                                                // Check if the block is not traversable
                                                 if (!options.game.map.raster
                                                         [bulletInfo.y + bDIF.y]
                                                         [bulletInfo.x + bDIF.x].block.traversable)
@@ -536,6 +539,51 @@ module.exports = function() {
                                                         console.log('removing the bullet');
                                                         clearInterval(shootingInterval);
                                                     }
+                                                } else {
+                                                    if (options.game.map.raster
+                                                            [bulletInfo.y + bDIF.y]
+                                                            [bulletInfo.x + bDIF.x].block.texture_name == 'portalhole') {
+
+                                                        console.log(options.game.map.raster
+                                                        [bulletInfo.y + bDIF.y]
+                                                        [bulletInfo.x + bDIF.x].block.metadata);
+
+                                                        // Check if the block is connected to another portal
+                                                        if (options.game.map.raster
+                                                            [bulletInfo.y + bDIF.y]
+                                                            [bulletInfo.x + bDIF.x].block.metadata.secondPortalCoordinates.x !== null &&
+                                                            options.game.map.raster
+                                                            [bulletInfo.y + bDIF.y]
+                                                            [bulletInfo.x + bDIF.x].block.metadata.secondPortalCoordinates.y !== null) {
+
+                                                            // Update changedRC
+                                                            changedRC.xChanged.push(bulletInfo.x);
+                                                            changedRC.yChanged.push(bulletInfo.y);
+
+                                                            // Reset the field
+                                                            options.game.map.topographies
+                                                                    [bulletInfo.y]
+                                                                    [bulletInfo.x].block = undefined;
+
+                                                            var tmpcord = {
+                                                                x: bulletInfo.x,
+                                                                y: bulletInfo.y
+                                                            };
+
+                                                            // Move the bullet on the x axis
+                                                            bulletInfo.x =
+                                                            options.game.map.raster
+                                                            [tmpcord.y + bDIF.y]
+                                                            [tmpcord.x + bDIF.x].block.metadata.secondPortalCoordinates.x;
+
+                                                            // Move the bullet on the y axis
+                                                            bulletInfo.y =
+                                                            options.game.map.raster
+                                                            [tmpcord.y + bDIF.y]
+                                                            [tmpcord.x + bDIF.x].block.metadata.secondPortalCoordinates.y;
+                                                        }
+
+                                                    }
                                                 }
                                             }
 
@@ -557,24 +605,56 @@ module.exports = function() {
 
                                         // If the timer wasn't cancelled, move the bullet
                                         if (shootingInterval['0'] === undefined) {
-                                            // Update the new field
-                                            options.game.map.topographies
-                                                [bulletInfo.y + bDIF.y]
-                                                [bulletInfo.x + bDIF.x].block = options.game.blockList.getBlock('ammo');
 
-                                            // Increase the damage by 20% per block traveled
-                                            bulletInfo.damageMultiplier *= 1.1;
+                                            // Check if the position isn't out of map
+                                            if (options.game.map.topographies
+                                                [bulletInfo.y + bDIF.y]) {
 
-                                            // Update the position
-                                            bulletInfo.x += bDIF.x;
-                                            bulletInfo.y += bDIF.y;
+                                                if (options.game.map.topographies
+                                                    [bulletInfo.y + bDIF.y]
+                                                    [bulletInfo.x + bDIF.x]) {
+
+                                                    // Update the new field
+                                                    options.game.map.topographies
+                                                        [bulletInfo.y + bDIF.y]
+                                                        [bulletInfo.x + bDIF.x].block = options.game.blockList.getBlock('ammo');
+
+                                                    // Increase the damage by 20% per block traveled
+                                                    bulletInfo.damageMultiplier *= 1.1;
+
+                                                    // Update the position
+                                                    bulletInfo.x += bDIF.x;
+                                                    bulletInfo.y += bDIF.y;
+                                                } else {
+                                                    // Reset the field
+                                                    options.game.map.topographies
+                                                            [bulletInfo.y]
+                                                            [bulletInfo.x].block = undefined;
+
+                                                    // Stop the loop
+                                                    console.log('removing the bullet');
+                                                    clearInterval(shootingInterval);
+                                                }
+                                            } else {
+                                                // Reset the field
+                                                options.game.map.topographies
+                                                        [bulletInfo.y]
+                                                        [bulletInfo.x].block = undefined;
+
+                                                // Stop the loop
+                                                console.log('removing the bullet');
+                                                clearInterval(shootingInterval);
+                                            }
                                         }
 
                                         // Call the render method of the game
                                         if (options.game.render) {
+
+                                            console.log(changedRC);
+
                                             options.game.render(options.game, {
-                                                xChanged: [bulletInfo.x - bDIF.x, bulletInfo.x],
-                                                yChanged: [bulletInfo.y - bDIF.y, bulletInfo.y]
+                                                xChanged: [bulletInfo.x - bDIF.x, bulletInfo.x, changedRC.xChanged[0]],
+                                                yChanged: [bulletInfo.y - bDIF.y, bulletInfo.y, changedRC.yChanged[0]]
                                             });
                                         }
                                     }

@@ -59,10 +59,6 @@ module.exports = function(key, id) {
             amount: 1
         },
         {
-            block: blockList.getBlock('portalgun'),
-            amount: 1
-        },
-        {
             block: blockList.getBlock('wood'),
             amount: 80
         },
