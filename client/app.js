@@ -59,8 +59,7 @@ function GCRender(data) {
     for (var x=0;x<data.map.width;x++) {
 
         if (data.changedRC) {
-            if (!(
-                data.changedRC.xChanged.indexOf(x) != -1)) {
+            if (!(data.changedRC.xChanged.indexOf(x) != -1)) {
                 continue;
             }
         }
@@ -75,9 +74,12 @@ function GCRender(data) {
 
         for (var y=0;y<data.map.height;y++) {
 
+            if (data.map.raster[y][x] === null) {
+                continue;
+            }
+
             if (data.changedRC) {
-                if (!(
-                    data.changedRC.yChanged.indexOf(y) != -1)) {
+                if (!(data.changedRC.yChanged.indexOf(y) != -1)) {
                     continue;
                 }
             }
@@ -751,7 +753,7 @@ var url = (function(){
     if (window.location.hash == '#dev') {
         return 'ws://localhost:7218';
     } else {
-        return 'ws://192.168.1.39:7218';
+        return 'ws://'+window.location.hostname+':7218';
     }
 })();
 

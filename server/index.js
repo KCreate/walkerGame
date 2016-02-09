@@ -196,6 +196,26 @@ Game.verbose = false;
 
 // Notify sockets that the map changed
 Game.render = function(game, changedRC) {
+    game = JSON.parse(JSON.stringify(game)); // Remove all references
+
+    /*
+        If changedRC is set,
+
+        Set all fields that are not mentioned in the changedRC to null
+    */
+    if (changedRC) {
+        game.map.raster = game.map.raster.map(function(yrow, iy) {
+            return yrow.map(function(xfield, ix) {
+                if (changedRC.xChanged.indexOf(ix) > -1 &&
+                    changedRC.yChanged.indexOf(iy) > -1) {
+                    return xfield;
+                } else {
+                    return null;
+                }
+            });
+        });
+    }
+
     GameSocket.connections.forEach(function(conn, index) {
         // Extract a permaKey if it's set
         var cookies = conn.headers.cookie;

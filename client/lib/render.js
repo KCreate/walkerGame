@@ -35,8 +35,7 @@ function GCRender(data) {
     for (var x=0;x<data.map.width;x++) {
 
         if (data.changedRC) {
-            if (!(
-                data.changedRC.xChanged.indexOf(x) != -1)) {
+            if (!(data.changedRC.xChanged.indexOf(x) != -1)) {
                 continue;
             }
         }
@@ -51,9 +50,12 @@ function GCRender(data) {
 
         for (var y=0;y<data.map.height;y++) {
 
+            if (data.map.raster[y][x] === null) {
+                continue;
+            }
+
             if (data.changedRC) {
-                if (!(
-                    data.changedRC.yChanged.indexOf(y) != -1)) {
+                if (!(data.changedRC.yChanged.indexOf(y) != -1)) {
                     continue;
                 }
             }
