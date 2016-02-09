@@ -164,6 +164,15 @@
             "texture_ff_name": "Diamond Block",
             "traversable": true,
             "stable": true
+        },
+        "crafting": {
+            "requirements": [
+                "goldblock", "goldblock", "goldblock",
+                "goldblock", "goldblock", "goldblock",
+                "goldblock", "goldblock", "goldblock"
+            ],
+            "amount": 2,
+            "options": {}
         }
     },
     "glass": {

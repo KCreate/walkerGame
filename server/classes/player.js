@@ -94,35 +94,51 @@ module.exports = function(key, id) {
             resource = [resource];
         }
 
+        var blockFound = undefined;
         resource.forEach(function(resource) {
-            var blockFound = false;
+            if (blockFound == undefined) {
 
-            // Iterate and edit the inventory items
-            this.inventory.map(function(item) {
-                item.amount = parseInt(item.amount);
-                resource.amount = parseInt(resource.amount);
+                // Search for an existing entry in the inventory
+                this.inventory.map(function(item, index) {
+                    item.amount = parseInt(item.amount);
+                    resource.amount = parseInt(resource.amount);
 
-                if (item.block.texture_name == resource.block.texture_name) {
-                    if (resource.amount < 0) {
-                        if (Math.abs(resource.amount) > item.amount) {
-                            item.amount = 0;
+                    if (item.block.texture_name == resource.block.texture_name) {
+                        if (resource.amount < 0) {
+                            if (Math.abs(resource.amount) > item.amount) {
+                                item.amount = 0;
+                            } else {
+                                item.amount += resource.amount;
+                            }
                         } else {
                             item.amount += resource.amount;
                         }
-                    } else {
-                        item.amount += resource.amount;
+
+                        blockFound = index;
                     }
+                }.bind(this));
 
-                    blockFound = true;
-                }
-            }.bind(this));
-
-            if (!blockFound) {
-                if (resource.amount > 0) {
-                    this.inventory.push(resource);
+                // If the block doesn't already exist, just push it
+                if (blockFound == undefined) {
+                    if (resource.amount > 0) {
+                        this.inventory.push(resource);
+                    }
                 }
             }
         }.bind(this));
+
+        // Check if the amount is zero
+        if (blockFound != undefined) {
+            if (this.inventory[blockFound].amount == 0) {
+                console.log(blockFound);
+                this.inventory.splice(blockFound, 1);
+
+                // Correct the selectedBlock index
+                if (this.selectedBlock >= blockFound) {
+                    this.selectedBlock -= 1;
+                }
+            }
+        }
 
         if (this.onchange) {
             this.onchange(this);

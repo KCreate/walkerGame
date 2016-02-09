@@ -34,8 +34,12 @@ module.exports = function() {
     this.getBlock = function(block_ident) {
         if (typeof block_ident == 'string') {
 
-            return oCopy(this.blockList[block_ident].block);
-
+            var block = oCopy(this.blockList[block_ident]);
+                if (block) {
+                    return block.block;
+                } else {
+                    return false;
+                }
         } else if (typeof block_ident == 'number') {
 
             for (var block in this.blockList) {
