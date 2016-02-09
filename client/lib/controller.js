@@ -252,7 +252,7 @@ var url = (function(){
     if (window.location.hash == '#dev') {
         return 'ws://localhost:7218';
     } else {
-        return 'ws://192.168.1.39:7218';
+        return 'ws://'+window.location.hostname+':7218';
     }
 })();
 
