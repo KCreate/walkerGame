@@ -61,13 +61,6 @@ var chatController = function(websocket) {
 
 // Main Game Controller
 var gameController = function(websocket) {
-    // Show the control buttons on mobile
-    if (/Mobi/i.test(navigator.userAgent)) {
-        document.querySelector('.controlbuttons').style.display = 'block';
-    }
-
-    this.buttons = document.querySelectorAll('input[name="controlbuttons"]');
-
     this.socketKey = undefined;
     this.localMap = undefined;
 
@@ -95,13 +88,6 @@ var gameController = function(websocket) {
         }
 
         this.localMap = event.map;
-    }
-
-    // Listen for clicks on the buttons
-    for (var i=0; i<this.buttons.length; i++) {
-        this.buttons[i].onclick = function(event) {
-            this.action(event.target.id);
-        }.bind(this);
     }
 
     // Listen for WASD keypresses on the whole canvas
@@ -167,6 +153,7 @@ var gameController = function(websocket) {
     // Game action method
     this.action = function(actionName) {
 
+        // Play the interact sound when an action other than walking is triggered
         if (!(
             actionName == 'up' ||
             actionName == 'right' ||
@@ -273,10 +260,6 @@ gameController          = new gameController(websocket);
 chatController          = new chatController(websocket);
 playerListController    = new playerListController(websocket);
 inventoryViewController = new inventoryViewController(websocket);
-
-document.ready = function() {
-    console.log('window onload');
-}
 
 websocket.onmessage = function(event) {
     var data = JSON.parse(event.data);

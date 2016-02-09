@@ -53,36 +53,6 @@ body {
             border-bottom-right-radius: 2px;
         }
 
-        .controlbuttons {
-            input[name="controlbuttons"] {
-                height: 30px;
-                font-size: 10pt;
-                float: left;
-                border: 3px solid #f2f5f5;
-                border-radius: 10px;
-                background-color: #2d4052;
-                color: #fff;
-
-                margin: 4px;
-
-                &:focus {
-                    outline: none;
-                }
-            }
-            #up {
-                width: $C_WIDTH - 14px;
-            }
-            #left {
-                width: calc(#{$C_WIDTH}/2 - 14px);
-            }
-            #right {
-                width: calc(#{$C_WIDTH}/2 - 14px);
-            }
-            #down {
-                width: $C_WIDTH - 14px;
-            }
-        }
-
         .playerlist {
             float: left;
             width: 100%;
