@@ -213,13 +213,15 @@ var inventoryViewController = function(websocket) {
 
                         // Setup onclick event listener
                         inventoryBlockView.onclick = function(event) {
+                            console.log(event);
+
                             var id = event.target.id;
 
                             // we only want the block name
                             id = id.split('inventoryView-').join('');
 
                             this.select_block(id);
-                        }
+                        }.bind(this)
 
                         // Add it to the DOM
                         this.inventoryView.appendChild(
