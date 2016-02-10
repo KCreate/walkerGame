@@ -1,2 +1,3 @@
 Transfer items to the killer when a player get's killed
 Rearrange items in the inventory (drag and drop maybe?)
+Fix commands not seeing the server as a normal player.

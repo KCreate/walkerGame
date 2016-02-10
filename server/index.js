@@ -94,7 +94,7 @@ app.use(function(req, res, next) {
 		req.headers["X-Forwarded-For"] ||
 		req.headers["x-forwarded-for"] ||
 		req.client.remoteAddress
-	));
+	) + Math.random());
     hashedKey = hashedKey.split('').slice(0, Math.floor(hashedKey.length / 2)).join('');
 
 	// Response
