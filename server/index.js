@@ -104,7 +104,8 @@ app.use(function(req, res, next) {
 	next();
 });
 
-app.use(express.static('./client'));
+app.use('/c', express.static('./client'));
+app.use('/internal', express.static('./server'));
 
 app.listen(ControlPort, function() {
     console.log('Control server ready at port ' + ControlPort);
