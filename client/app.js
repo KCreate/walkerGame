@@ -57,7 +57,6 @@ function GCRender(data) {
 
     // Iterate over the map
     for (var x=0;x<data.map.width;x++) {
-
         if (data.changedRC) {
             if (!(data.changedRC.xChanged.indexOf(x) != -1)) {
                 continue;
@@ -73,8 +72,14 @@ function GCRender(data) {
         });
 
         for (var y=0;y<data.map.height;y++) {
+            
+            if (data.map.raster[y] === 0) {
+                console.log('skipping1 at: ' + y + '|' + x);
+                continue;
+            }
 
-            if (data.map.raster[y][x] === null) {
+            if (data.map.raster[y][x] === 0) {
+                console.log('skipping2 at: ' + y + '|' + x);
                 continue;
             }
 
@@ -653,19 +658,6 @@ var gameController = function(websocket) {
 
     // Game action method
     this.action = function(actionName) {
-
-        // Play the interact sound when an action other than walking is triggered
-        if (!(
-            actionName == 'up' ||
-            actionName == 'right' ||
-            actionName == 'down' ||
-            actionName == 'left'
-        )) {
-            var interactSound = new Audio('res/sounds/interact.mp3');
-            interactSound.volume = 0.6;
-            interactSound.play();
-        }
-
         websocket.send(JSON.stringify({
             actionName,
             key: this.socketKey,

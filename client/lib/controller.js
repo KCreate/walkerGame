@@ -152,19 +152,6 @@ var gameController = function(websocket) {
 
     // Game action method
     this.action = function(actionName) {
-
-        // Play the interact sound when an action other than walking is triggered
-        if (!(
-            actionName == 'up' ||
-            actionName == 'right' ||
-            actionName == 'down' ||
-            actionName == 'left'
-        )) {
-            var interactSound = new Audio('res/sounds/interact.mp3');
-            interactSound.volume = 0.6;
-            interactSound.play();
-        }
-
         websocket.send(JSON.stringify({
             actionName,
             key: this.socketKey,

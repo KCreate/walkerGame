@@ -89,19 +89,27 @@ Chat.on('playerInfoChanged', function() {
 
 // hashed ip adress used to identify players over different websocket connections
 app.use(function(req, res, next) {
-	// Get the remote address
-	var hashedKey = Sha1.hash((
-		req.headers["X-Forwarded-For"] ||
-		req.headers["x-forwarded-for"] ||
-		req.client.remoteAddress
-	) + Math.random());
-    hashedKey = hashedKey.split('').slice(0, Math.floor(hashedKey.length / 2)).join('');
+    // Check if the sessionID cookie is already set   
+    try {
+        if (!req.headers.cookie) { 
+            // Get the remote address
+            var hashedKey = Sha1.hash((
+                req.headers["X-Forwarded-For"] ||
+                req.headers["x-forwarded-for"] ||
+                req.client.remoteAddress
+            ) + Math.random());
+           
+            hashedKey = hashedKey.split('').slice(0, Math.floor(hashedKey.length / 2)).join('');
 
-	// Response
-	res.cookie('sessionID', hashedKey);
-
-	// Call the next middleware
-	next();
+            // Response
+            res.cookie('sessionID', hashedKey);
+        } else {
+            console.log(req.headers.cookie);
+        }
+    } catch(e) {console.log(e);}
+    
+    // Call the next middlware
+    next();
 });
 
 app.use('/c', express.static('./client'));
@@ -205,16 +213,35 @@ Game.render = function(game, changedRC) {
         Set all fields that are not mentioned in the changedRC to null
     */
     if (changedRC) {
-        game.map.raster = game.map.raster.map(function(yrow, iy) {
-            return yrow.map(function(xfield, ix) {
-                if (changedRC.xChanged.indexOf(ix) > -1 &&
-                    changedRC.yChanged.indexOf(iy) > -1) {
-                    return xfield;
+        // Reduce the topographies size
+        var compressed = [
+            game.map.raster,
+            game.map.topographies
+        ].map(function(item) {
+            return item.map(function(yrow, iy) {
+                yrow = yrow.map(function(xfield, ix) {
+                    if (changedRC.xChanged.indexOf(ix) > -1 &&
+                        changedRC.yChanged.indexOf(iy) > -1) {
+                        return xfield;
+                    } else {
+                        return 0;
+                    }
+                });
+
+                var totalzero = yrow.map(function(xfield, ix) {
+                    return (xfield === 0);
+                }).indexOf(false);
+
+                if (totalzero == -1) {
+                    return 0;
                 } else {
-                    return null;
+                    return yrow;
                 }
             });
         });
+
+        game.map.raster = compressed[0];
+        game.map.topographies = compressed[1];
     }
 
     GameSocket.connections.forEach(function(conn, index) {
