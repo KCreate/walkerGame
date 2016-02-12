@@ -52,3 +52,18 @@ infoview .craftingrecipe {
     width: 200px;
     float: left;
 }
+
+infoview .info {
+    font-size: 7px;
+    float: left;
+    width: 95px;
+    height: 200px;
+
+    padding: 5px;
+}
+
+infoview .info h1 {
+    display: block;
+    float: left;
+    width: 95px;
+}

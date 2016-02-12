@@ -68,6 +68,18 @@ Chat.on('update', function(update) {
 });
 // Notify other sockets that a player changed his info
 Chat.on('playerInfoChanged', function() {
+    
+    // De-reference the players
+    var players = JSON.parse(JSON.stringify(Game.players));
+
+    // Remove unneccessary stuff
+    players = players.map(function(player) {
+        if (player) {
+            console.log(player);
+        }
+        return player;
+    });
+    
     GameSocket.connections.forEach(function(conn) {
         try {
             conn.sendText(
@@ -111,9 +123,26 @@ app.use(function(req, res, next) {
     // Call the next middlware
     next();
 });
-
 app.use('/c', express.static('./client'));
-app.use('/internal', express.static('./server'));
+app.use('/', function(req, res, next) {
+    console.log(req.originalUrl);
+    if (req.originalUrl == '/') {
+        res.redirect('/c');
+    } else {
+        next();
+    }
+});
+app.get('/api/:data', function(req, res, next) {
+    switch(req.params.data) {
+        case 'blockdata':
+            res.send(JSON.stringify(
+                Game.blockList.blockList
+            ));
+            break;
+        default:
+    }
+    next();
+});
 
 app.listen(ControlPort, function() {
     console.log('Control server ready at port ' + ControlPort);
@@ -251,6 +280,23 @@ Game.render = function(game, changedRC) {
 			var permaKey = cookies.split('sessionID=')[1];
 		}
 
+        // De-reference the game.players array
+        var players = JSON.parse(JSON.stringify(game.players));
+
+        // Remove the inventory variable from other players
+        players = players.map(function(player) {
+            // Check if the item is a player
+            if (player) {
+                // Check if it's not the current player
+                if (player.key != (permaKey || conn.key)) {
+                    player.inventory = player.inventory.filter(function(item, index) {
+                        return (index == player.selectedBlock);
+                    });
+                }
+            }
+            return player;
+        });
+
         try {
             conn.sendText(
                 JSON.stringify({
@@ -258,7 +304,7 @@ Game.render = function(game, changedRC) {
                         key: (permaKey || conn.key)
                     },
                     map: game.map,
-                    players: game.players,
+                    players: players,
                     changedRC,
                     type: 'game'
                 })
@@ -315,7 +361,6 @@ Game.playersChanged = function(players) {
         }
     });
 
-    Game.render(Game, changedRC);
     Chat.fireEvent('playerInfoChanged');
 }
 

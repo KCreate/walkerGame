@@ -31,7 +31,7 @@ spritesheet.onload = function() {
 
         }
     }
-    xhr.open('GET', '/internal/res/blocks.json', true);
+    xhr.open('GET', '/api/blockdata', true);
     xhr.send();
 }
 spritesheet.src = '/c/res/img/spritesheet.png';
@@ -48,6 +48,7 @@ function main(spritesheet, blockdata) {
                 view.preview_id = block.block.texture_id;
                 view.title = block.block.texture_ff_name;
                 view.spritesheet = spritesheet;
+                view.item = block.block.item;
 
                 if (block.crafting) {
                     view.crafting = block.crafting;
@@ -69,6 +70,7 @@ var infoView = function(blockdata) {
     this.title = 'Template';
     this.spritesheet = undefined;
     this.crafting = undefined;
+    this.item = false;
 
     this.render = function() {
 
@@ -111,13 +113,38 @@ var infoView = function(blockdata) {
         ));
 
         infocontainer.appendChild(title);
-
         element.appendChild(infocontainer);
 
         // crafting setup
         var crafting = document.createElement('div');
         crafting.className = 'craftingrecipe';
         element.appendChild(crafting);
+
+        var info = document.createElement('div');
+        info.className = 'info';
+        info.appendChild(
+            (function(){                
+                var node = document.createElement('h1');
+                node.appendChild(document.createTextNode('Amount: ' + this.crafting.amount));
+                return node;
+            }.bind(this))()
+        );
+        info.appendChild(
+            (function(){
+                var node = document.createElement('h1');
+                node.appendChild(document.createTextNode('Type: ' + (this.crafting.requirements.length==4?'2x2':'3x3')));
+                return node;
+            }.bind(this))()
+        );
+        info.appendChild(
+            (function(){
+                var node = document.createElement('h1');
+                node.appendChild(document.createTextNode('Item: ' + this.item));
+                return node;
+            }.bind(this))() 
+        );
+
+        element.appendChild(info);
 
         // put the recipe in
         if (this.crafting) {

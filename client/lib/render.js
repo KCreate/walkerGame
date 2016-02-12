@@ -84,7 +84,7 @@ function GCRender(data) {
                 playerAtThisPos = validPlayersY.last();
                 texture = playerAtThisPos.id;
                 if (playerAtThisPos.mask) {
-                    texture = playerAtThisPos.inventory[playerAtThisPos.selectedBlock].block.texture_id;
+                    texture = playerAtThisPos.inventory[0].block.texture_id;
                     masked = true;
                 }
             } else {
@@ -128,9 +128,9 @@ function GCRender(data) {
                 if (playerAtThisPos && !masked) {
 
                     // Draw the item in a players hand
-                    if (playerAtThisPos.inventory[playerAtThisPos.selectedBlock].amount > 0) {
+                    if (playerAtThisPos.inventory[0].amount > 0) {
                         drawHandler.drawItem(
-                            playerAtThisPos.inventory[playerAtThisPos.selectedBlock].block.texture_id,
+                            playerAtThisPos.inventory[0].block.texture_id,
                             x,
                             y
                         );
