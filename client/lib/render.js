@@ -50,12 +50,10 @@ function GCRender(data) {
         for (var y=0;y<data.map.height;y++) {
             
             if (data.map.raster[y] === 0) {
-                console.log('skipping1 at: ' + y + '|' + x);
                 continue;
             }
 
             if (data.map.raster[y][x] === 0) {
-                console.log('skipping2 at: ' + y + '|' + x);
                 continue;
             }
 

@@ -1,5 +1,5 @@
 // Third-Party Dependencies
-var WebSocket           = require('nodejs-websocket');
+var WebSocketServer     = require('ws').Server;
 var express             = require('express');
 var app                 = express();
 var fs                  = require('fs');
@@ -13,8 +13,10 @@ var CommandsController  = new (require('./commandscontroller.js'))();
 // Some constants
 var ControlPort         = 7217;
 var GamePort            = 7218;
-var ConsolePort         = 7219;
-var DefaultMapSize      = 15;
+var DefaultMapSize      = 16;
+
+// Sockets
+var GameSocket          = new WebSocketServer({port:GamePort});
 
 // Delete all player files
 var rmDir = function(dirPath, removeSelf) {
@@ -53,9 +55,9 @@ if (!fs.existsSync('./server/worlds/')) {
 
 // Chat Controller Setup
 Chat.on('update', function(update) {
-    GameSocket.connections.forEach(function(conn) {
+    GameSocket.clients.forEach(function(conn) {
         try {
-            conn.sendText(JSON.stringify({
+            conn.send(JSON.stringify({
                 newMessage: update.newMessage,
                 messages: update.messages,
                 type: 'chat'
@@ -80,9 +82,9 @@ Chat.on('playerInfoChanged', function() {
         return player;
     });
     
-    GameSocket.connections.forEach(function(conn) {
+    GameSocket.clients.forEach(function(conn) {
         try {
-            conn.sendText(
+            conn.send(
                 JSON.stringify({
                     players: Game.players,
                     type: 'player'
@@ -104,17 +106,16 @@ app.use(function(req, res, next) {
     // Check if the sessionID cookie is already set   
     try {
         if (!req.headers.cookie) { 
-            // Get the remote address
-            var hashedKey = Sha1.hash((
-                req.headers["X-Forwarded-For"] ||
-                req.headers["x-forwarded-for"] ||
-                req.client.remoteAddress
-            ) + Math.random());
-           
-            hashedKey = hashedKey.split('').slice(0, Math.floor(hashedKey.length / 2)).join('');
-
-            // Response
-            res.cookie('sessionID', hashedKey);
+            // Generate a new session id
+            var sessionID = Sha1.hash(""+Math.random())
+                            .split('')
+                            .filter(function(el, i) {
+                                return (i < 8);
+                            })
+                            .join('');
+            
+            // Set the sessionID cookie
+            res.cookie('sessionID', sessionID);
         } else {
             console.log(req.headers.cookie);
         }
@@ -125,7 +126,6 @@ app.use(function(req, res, next) {
 });
 app.use('/c', express.static('./client'));
 app.use('/', function(req, res, next) {
-    console.log(req.originalUrl);
     if (req.originalUrl == '/') {
         res.redirect('/c');
     } else {
@@ -143,29 +143,30 @@ app.get('/api/:data', function(req, res, next) {
     }
     next();
 });
-
 app.listen(ControlPort, function() {
-    console.log('Control server ready at port ' + ControlPort);
+    console.log('Control server ready at port: ' + ControlPort);
 });
 
+// Setup the gamesocket
+GameSocket.on('connection', function (conn) {
 
-var GameSocket = WebSocket.createServer(function (conn) {
-
-    // Extract a permaKey if it's set
-    var cookies = conn.headers.cookie;
-	var permaKey = undefined;
+    // Check if a sessionID was set
+    var cookies = conn.upgradeReq.headers.cookie;
+	var sessionID = undefined;
 	if (cookies) {
-		permaKey = cookies.split('sessionID=')[1];
+		sessionID = cookies.split('sessionID=')[1];
 	}
-
-    if (!Game.registerPlayer((permaKey || conn.key))) {
+    
+    // Try to register a player
+    var regStatus = Game.registerPlayer(sessionID || conn.key);
+    if (!regStatus) {
         secureClose(conn);
         return false;
     }
 
     // Send down the whole chat
     try {
-        conn.sendText(
+        conn.send(
             JSON.stringify({
                 chat: Chat.messages,
                 type: 'chat'
@@ -177,7 +178,7 @@ var GameSocket = WebSocket.createServer(function (conn) {
         return false;
     }
 
-    conn.on("text", function (data) {
+    conn.on("message", function (data) {
         try {
             data = JSON.parse(data);
         } catch (e) {
@@ -190,14 +191,14 @@ var GameSocket = WebSocket.createServer(function (conn) {
                 // Notify the game of the action
                 Game.action(
                     data.actionName,
-                    (permaKey || conn.key)
+                    (sessionID || conn.key)
                 );
                 break;
             case 'chat':
                 // Notify the chat of the new message
                 Chat.write(
                     data.message,
-                    Game.playerForKey((permaKey || conn.key))
+                    Game.playerForKey((sessionID || conn.key))
                 );
                 break;
             default:
@@ -206,7 +207,7 @@ var GameSocket = WebSocket.createServer(function (conn) {
 	});
 
     conn.on("close", function() {
-        Game.unregisterPlayer((permaKey || conn.key));
+        Game.unregisterPlayer((sessionID || conn.key));
     });
 
     conn.on('error', function(err) {
@@ -215,7 +216,7 @@ var GameSocket = WebSocket.createServer(function (conn) {
         return false;
     });
 
-}).listen(GamePort);
+});
 
 /*
     Securely close the websocket connection without crashing
@@ -273,11 +274,13 @@ Game.render = function(game, changedRC) {
         game.map.topographies = compressed[1];
     }
 
-    GameSocket.connections.forEach(function(conn, index) {
-        // Extract a permaKey if it's set
-        var cookies = conn.headers.cookie;
+    GameSocket.clients.forEach(function(conn, index) {
+        
+        // Check if there is a sessionID
+        var cookies = conn.upgradeReq.headers.cookie;
+        var sessionID = undefined;
 		if (cookies) {
-			var permaKey = cookies.split('sessionID=')[1];
+			sessionID = cookies.split('sessionID=')[1];
 		}
 
         // De-reference the game.players array
@@ -288,7 +291,7 @@ Game.render = function(game, changedRC) {
             // Check if the item is a player
             if (player) {
                 // Check if it's not the current player
-                if (player.key != (permaKey || conn.key)) {
+                if (player.key != (sessionID || conn.key)) {
                     player.inventory = player.inventory.filter(function(item, index) {
                         return (index == player.selectedBlock);
                     });
@@ -298,10 +301,10 @@ Game.render = function(game, changedRC) {
         });
 
         try {
-            conn.sendText(
+            conn.send(
                 JSON.stringify({
                     game: {
-                        key: (permaKey || conn.key)
+                        key: (sessionID || conn.key)
                     },
                     map: game.map,
                     players: players,
@@ -336,27 +339,22 @@ Game.playersChanged = function(players) {
             if (player.health === 0) {
 
 				// Notify other sockets
-                GameSocket.connections.forEach(function(conn, index) {
-                    // Extract a permaKey if it's set
-                    var cookies = conn.headers.cookie;
-					var permaKey = undefined;
+                GameSocket.clients.forEach(function(conn, index) {
+                    // Check if there is a sessionID
+                    var cookies = conn.upgradeReq.headers.cookie;
+					var sessionID = undefined;
 					if (cookies) {
-						permaKey = cookies.split('sessionID=')[1];
+						sessionID = cookies.split('sessionID=')[1];
 					}
 
 					// Check if the player has a permaKey
-					if (
-						permaKey == player.permaKey ||
-						conn.key == player.key ||
-						permaKey == player.key ||
-						conn.key == player.permaKey
-					) {
-						conn.close();
-					}
+                    if (player.key == (sessionID || conn.key)) {
+                        conn.close();
+                    }
                 });
 
 				// Delete the playerSaveFile
-				Game.deletePlayerSave((player.permaKey || player.key));
+				Game.deletePlayerSave(player.sessionID || player.key);
             }
         }
     });
@@ -369,32 +367,3 @@ Game.playersChanged = function(players) {
 */
 CommandsController.setup(Game, Chat, GameSocket);
 CommandsController.startRegistering();
-
-/*
-    Admin Console
-*/
-var consoleKey = undefined;
-WebSocket.createServer(function(conn) {
-    if (!consoleKey) {
-        consoleKey = Sha1.hash(
-            (Array.apply(null, (new Array(8))).map(function() {
-                return Math.random()*64;
-            })).join('')
-        )
-        conn.sendText(consoleKey);
-        conn.on('text', function(data) {
-            data = JSON.parse(data);
-            if (data.key == consoleKey) {
-
-                Chat.write(
-                    data.command,
-                    Chat.serverUser
-                );
-
-            }
-        });
-        conn.on('close', function() {
-            consoleKey = undefined;
-        });
-    }
-}).listen(ConsolePort);
