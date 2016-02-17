@@ -657,7 +657,7 @@ var gameController = function(websocket) {
     // Game action method
     this.action = function(actionName) {
         websocket.send(JSON.stringify({
-            actionName,
+            actionName: actionName,
             key: this.socketKey,
             type: "action"
         }));

@@ -524,7 +524,8 @@ module.exports = function() {
                                                     if (options.game.map.raster
                                                             [bulletInfo.y + bDIF.y]
                                                             [bulletInfo.x + bDIF.x].block.redirectsBullets) {
-
+                                                        
+                                                        bDIF = JSON.parse(JSON.stringify(bDIF));
                                                         bDIF.x = -bDIF.x;
                                                         bDIF.y = -bDIF.y;
 

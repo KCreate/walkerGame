@@ -13,10 +13,10 @@ var CommandsController  = new (require('./commandscontroller.js'))();
 // Some constants
 var ControlPort         = 7217;
 var GamePort            = 7218;
-var DefaultMapSize      = 16;
+var DefaultMapSize      = 15;
 
 // Sockets
-var GameSocket          = new WebSocketServer({port:GamePort});
+var GameSocket          = new WebSocketServer({ port: GamePort });
 
 // Delete all player files
 var rmDir = function(dirPath, removeSelf) {

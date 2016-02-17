@@ -13,7 +13,7 @@ module.exports = function(key, id) {
     this.permaKey = undefined;
     this.nickname = undefined;
     this.name = function() {
-        return (this.nickname || this.key || this.id);
+        return (this.nickname || "Anonymous");
     }
 
     // Coordinates on the field
