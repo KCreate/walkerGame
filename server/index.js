@@ -70,7 +70,7 @@ Chat.on('update', function(update) {
 });
 // Notify other sockets that a player changed his info
 Chat.on('playerInfoChanged', function() {
-    
+
     // De-reference the players
     var players = JSON.parse(JSON.stringify(Game.players));
 
@@ -81,7 +81,7 @@ Chat.on('playerInfoChanged', function() {
         }
         return player;
     });
-    
+
     GameSocket.clients.forEach(function(conn) {
         try {
             conn.send(
@@ -103,24 +103,28 @@ Chat.on('playerInfoChanged', function() {
 
 // hashed ip adress used to identify players over different websocket connections
 app.use(function(req, res, next) {
-    // Check if the sessionID cookie is already set   
-    try {
-        if (!req.headers.cookie) { 
-            // Generate a new session id
-            var sessionID = Sha1.hash(""+Math.random())
-                            .split('')
-                            .filter(function(el, i) {
-                                return (i < 8);
-                            })
-                            .join('');
-            
-            // Set the sessionID cookie
-            res.cookie('sessionID', sessionID);
-        } else {
-            console.log(req.headers.cookie);
-        }
-    } catch(e) {console.log(e);}
-    
+    // Try to extract the sessionCookie
+    var cookies = req.headers.cookie;
+    var sessionID = undefined;
+    if (cookies) {
+        sessionID = cookies.split('sessionID=')[1];
+        sessionID = sessionID.split(';')[0];
+    }
+
+    // Check if the sessionID cookie is already set
+    if (sessionID == undefined) {
+        // Generate a new session id
+        var sessionID = Sha1.hash(""+Math.random())
+                        .split('')
+                        .filter(function(el, i) {
+                            return (i < 8);
+                        })
+                        .join('');
+
+        // Set the sessionID cookie
+        res.cookie('sessionID', sessionID);
+    }
+
     // Call the next middlware
     next();
 });
@@ -152,11 +156,12 @@ GameSocket.on('connection', function (conn) {
 
     // Check if a sessionID was set
     var cookies = conn.upgradeReq.headers.cookie;
-	var sessionID = undefined;
-	if (cookies) {
-		sessionID = cookies.split('sessionID=')[1];
-	}
-    
+    var sessionID = undefined;
+    if (cookies) {
+        sessionID = cookies.split('sessionID=')[1];
+        sessionID = sessionID.split(';')[0];
+    }
+
     // Try to register a player
     var regStatus = Game.registerPlayer(sessionID || conn.key);
     if (!regStatus) {
@@ -211,7 +216,7 @@ GameSocket.on('connection', function (conn) {
     });
 
     conn.on('error', function(err) {
-        console.log("line 173: " + err);
+        console.log("websocket error: " + err);
         secureClose(conn);
         return false;
     });
@@ -275,13 +280,14 @@ Game.render = function(game, changedRC) {
     }
 
     GameSocket.clients.forEach(function(conn, index) {
-        
+
         // Check if there is a sessionID
         var cookies = conn.upgradeReq.headers.cookie;
         var sessionID = undefined;
-		if (cookies) {
-			sessionID = cookies.split('sessionID=')[1];
-		}
+        if (cookies) {
+            sessionID = cookies.split('sessionID=')[1];
+            sessionID = sessionID.split(';')[0];
+        }
 
         // De-reference the game.players array
         var players = JSON.parse(JSON.stringify(game.players));
@@ -345,9 +351,10 @@ Game.playersChanged = function(players) {
 					var sessionID = undefined;
 					if (cookies) {
 						sessionID = cookies.split('sessionID=')[1];
+                        sessionID = sessionID.split(';')[0];
 					}
 
-					// Check if the player has a permaKey
+					// Check if the key matches with the session key
                     if (player.key == (sessionID || conn.key)) {
                         conn.close();
                     }
