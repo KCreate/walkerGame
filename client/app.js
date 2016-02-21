@@ -148,14 +148,24 @@ function GCRender(data) {
 
                 // Several drawing related to the player
                 if (playerAtThisPos && !masked) {
-
-                    // Draw the item in a players hand
-                    if (playerAtThisPos.inventory[0].amount > 0) {
-                        drawHandler.drawItem(
-                            playerAtThisPos.inventory[0].block.texture_id,
-                            x,
-                            y
-                        );
+                    
+                    // Check if there are several items in his inventory
+                    if (playerAtThisPos.inventory.length > 1) {
+                        if (playerAtThisPos.inventory[playerAtThisPos.selectedBlock].amount > 0) {
+                            drawHandler.drawItem(
+                                playerAtThisPos.inventory[playerAtThisPos.selectedBlock].block.texture_id,
+                                x,
+                                y
+                            );
+                        }
+                    } else {
+                        if (playerAtThisPos.inventory[0].amount > 0) {
+                            drawHandler.drawItem(
+                                playerAtThisPos.inventory[0].block.texture_id,
+                                x,
+                                y
+                            );
+                        }
                     }
                 }
             }
