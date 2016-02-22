@@ -106,7 +106,7 @@ app.use(function(req, res, next) {
     // Try to extract the sessionCookie
     var cookies = req.headers.cookie;
     var sessionID = undefined;
-    if (cookies) {
+    if (cookies && (cookies.indexOf('sessionID=') > -1)) {
         sessionID = cookies.split('sessionID=')[1];
         sessionID = sessionID.split(';')[0];
     }
@@ -157,7 +157,7 @@ GameSocket.on('connection', function (conn) {
     // Check if a sessionID was set
     var cookies = conn.upgradeReq.headers.cookie;
     var sessionID = undefined;
-    if (cookies) {
+    if (cookies && (cookies.indexOf('sessionID=') > -1)) {
         sessionID = cookies.split('sessionID=')[1];
         sessionID = sessionID.split(';')[0];
     }
@@ -284,7 +284,7 @@ Game.render = function(game, changedRC) {
         // Check if there is a sessionID
         var cookies = conn.upgradeReq.headers.cookie;
         var sessionID = undefined;
-        if (cookies) {
+        if (cookies && (cookies.indexOf('sessionID=') > -1)) {
             sessionID = cookies.split('sessionID=')[1];
             sessionID = sessionID.split(';')[0];
         }
@@ -349,7 +349,7 @@ Game.playersChanged = function(players) {
                     // Check if there is a sessionID
                     var cookies = conn.upgradeReq.headers.cookie;
 					var sessionID = undefined;
-					if (cookies) {
+					if (cookies && (cookies.indexOf('sessionID=') > -1)) {
 						sessionID = cookies.split('sessionID=')[1];
                         sessionID = sessionID.split(';')[0];
 					}
